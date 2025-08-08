@@ -15,6 +15,19 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT]:
+        spaceship_x -= 0.1
+    if keys[pygame.K_RIGHT]:
+        spaceship_x += 0.1
+    if keys[pygame.K_UP]:
+        spaceship_y -= 0.1
+    if keys[pygame.K_DOWN]:
+        spaceship_y += 0.1
+
+    spaceship_x = max(0, min(spaceship_x, 640 - 50))
+    spaceship_y = max(0, min(spaceship_y, 480 - 50))
+
     screen.fill((0, 0, 0))
     screen.blit(spaceship_img, (spaceship_x, spaceship_y))
     pygame.display.flip()
