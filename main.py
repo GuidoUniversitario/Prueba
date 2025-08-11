@@ -11,6 +11,14 @@ spaceship_frames = [
 spaceship_x = 50
 spaceship_y = 200
 
+lasers = []
+
+laser_speed = 2
+
+def shoot_laser(x, y):
+    laser_rect = pygame.Rect(x + 50, y + 24, 10, 2)
+    lasers.append(laser_rect)
+
 frame_index = 0
 animation_timer = 0
 animation_speed = 100
@@ -23,6 +31,9 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                shoot_laser(spaceship_x, spaceship_y)
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT]:
@@ -37,12 +48,22 @@ while running:
     spaceship_x = max(0, min(spaceship_x, 640 - 50))
     spaceship_y = max(0, min(spaceship_y, 480 - 50))
 
+    for laser in lasers:
+        laser.x += laser_speed
+
+    lasers = [laser for laser in lasers if laser.x < 640]
+
     animation_timer += dt
     if animation_timer >= animation_speed:
         animation_timer = 0
         frame_index = (frame_index + 1) % len(spaceship_frames)
 
     screen.fill((0, 0, 0))
+    screen.blit(spaceship_img, (spaceship_x, spaceship_y))
+
+    for laser in lasers:
+        pygame.draw.rect(screen, (255, 0, 0), laser)
+
     screen.blit(spaceship_frames[frame_index], (spaceship_x, spaceship_y))
     pygame.display.flip()
 
