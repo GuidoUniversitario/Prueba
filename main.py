@@ -8,6 +8,9 @@ spaceship_frames = [
     pygame.transform.scale(pygame.image.load(f"spaceship_000{i}.png"), (50, 50))
     for i in range(1, 4)
 ]
+laser_img = pygame.image.load("laser.png")
+laser_img = pygame.transform.scale(laser_img, (25, 25))
+
 spaceship_x = 50
 spaceship_y = 200
 
@@ -62,7 +65,7 @@ while running:
     screen.blit(spaceship_img, (spaceship_x, spaceship_y))
 
     for laser in lasers:
-        pygame.draw.rect(screen, (255, 0, 0), laser)
+        screen.blit(laser_img, (laser["x"], laser["y"]))
 
     screen.blit(spaceship_frames[frame_index], (spaceship_x, spaceship_y))
     pygame.display.flip()
