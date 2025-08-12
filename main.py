@@ -6,16 +6,19 @@ pygame.display.set_caption("Mi primer juego")
 
 spaceship_img = pygame.image.load("spaceship_0001.png")
 spaceship_img = pygame.transform.scale(spaceship_img,(50,50))
+laser_img = pygame.image.load("laser.png")
+laser_img = pygame.transform.scale(laser_img, (25, 25))
+
 spaceship_x = 50
 spaceship_y = 200
 
 lasers = []
-
 laser_speed = 2
 
 def shoot_laser(x, y):
-    laser_rect = pygame.Rect(x + 50, y + 24, 10, 2)
-    lasers.append(laser_rect)
+    laser_x = x + 45
+    laser_y = y + 15
+    lasers.append({"x": laser_x, "y": laser_y})
 
 running = True
 while running:
@@ -40,15 +43,15 @@ while running:
     spaceship_y = max(0, min(spaceship_y, 480 - 50))
 
     for laser in lasers:
-        laser.x += laser_speed
+        laser["x"] += laser_speed
 
-    lasers = [laser for laser in lasers if laser.x < 640]
+    lasers = [laser for laser in lasers if laser["x"] < 640]
 
     screen.fill((0, 0, 0))
     screen.blit(spaceship_img, (spaceship_x, spaceship_y))
 
     for laser in lasers:
-        pygame.draw.rect(screen, (255, 0, 0), laser)
+        screen.blit(laser_img, (laser["x"], laser["y"]))
 
     pygame.display.flip()
 
