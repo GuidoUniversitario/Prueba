@@ -16,10 +16,10 @@ spaceship_y = 200
 
 lasers = []
 
-laser_speed = 2
+laser_speed = 10
 
 def shoot_laser(x, y):
-    laser_rect = pygame.Rect(x + 50, y + 24, 10, 2)
+    laser_rect = pygame.Rect(x + 25, y + 12, 10, 2)
     lasers.append(laser_rect)
 
 frame_index = 0
@@ -62,10 +62,9 @@ while running:
         frame_index = (frame_index + 1) % len(spaceship_frames)
 
     screen.fill((0, 0, 0))
-    screen.blit(spaceship_img, (spaceship_x, spaceship_y))
 
     for laser in lasers:
-        screen.blit(laser_img, (laser["x"], laser["y"]))
+        screen.blit(laser_img, (laser.x, laser.y))
 
     screen.blit(spaceship_frames[frame_index], (spaceship_x, spaceship_y))
     pygame.display.flip()
