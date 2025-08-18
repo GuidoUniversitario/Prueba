@@ -1,4 +1,5 @@
 import pygame
+from fondo import Fondo
 pygame.init()
 
 screen = pygame.display.set_mode((640, 480))
@@ -15,6 +16,8 @@ frame_index = 0
 animation_timer = 0
 animation_speed = 100
 
+fondo = Fondo(screen)
+
 clock = pygame.time.Clock()
 
 running = True
@@ -23,6 +26,8 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
+    fondo.mover()
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT]:
