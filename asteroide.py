@@ -1,22 +1,16 @@
 import pygame
 import random
 
-ASTEROIDE_IMG = pygame.Surface((50, 50), pygame.SRCALPHA)
-pygame.draw.circle(ASTEROIDE_IMG, (150, 150, 150), (25, 25), 25) #temporal
-
 class Asteroide:
     def __init__(self):
-        self.image = ASTEROIDE_IMG
-        self.rect = self.image.get_rect()
-        self.rect.x = 640
-        self.rect.y = random.randint(0, 480 - self.rect.height)
+        self.asteroide_img = pygame.image.load("little_meteor.png").convert_alpha()
+        self.x = 640
+        self.y = random.randint(0, 472)
         self.velocidad = random.randint(3, 6)
 
-    def mover(self):
-        self.rect.x -= self.velocidad
+    def mover(self, screen):
+        self.x -= self.velocidad
+        screen.blit(self.asteroide_img, (self.x, self.y))
 
     def fuera_de_pantalla(self):
-        return self.rect.right < 0
-
-    def dibujar(self, superficie):
-        superficie.blit(self.image, self.rect)
+        return self.x < 0

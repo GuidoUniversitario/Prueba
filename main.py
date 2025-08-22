@@ -45,12 +45,12 @@ while running:
         animation_timer = 0
         frame_index = (frame_index + 1) % len(spaceship_frames)
 
-    asteroide.mover()
+
     if asteroide.fuera_de_pantalla():
         asteroide = Asteroide()
 
     screen.fill((0, 0, 0))
-    asteroide.dibujar(screen)
+    asteroide.mover(screen)
     screen.blit(spaceship_frames[frame_index], (spaceship_x, spaceship_y))
     pygame.display.flip()
 
