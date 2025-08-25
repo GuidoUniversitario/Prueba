@@ -3,7 +3,7 @@ import random
 
 class Asteroide:
     def __init__(self):
-        self.asteroide_img = pygame.image.load("little_meteor.png").convert_alpha()
+        self.asteroide_img = pygame.transform.scale(pygame.image.load("little_meteor.png").convert_alpha(), (25, 25))
         self.x = 640
         self.y = random.randint(0, 472)
         self.velocidad = random.randint(3, 6)
