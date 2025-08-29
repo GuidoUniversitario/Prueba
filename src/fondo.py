@@ -4,7 +4,7 @@ class Fondo:
     def __init__(self, screen):
         self.screen = screen
         self.tile_size = 64
-        self.bg_tile = pygame.image.load("stars_big.png").convert()
+        self.bg_tile = pygame.image.load("img/stars_big.png").convert()
         self.offset_x = 0
         self.scroll_speed = 1
 

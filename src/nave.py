@@ -3,7 +3,7 @@ import pygame
 class Nave:
     def __init__(self):
         self.spaceship_frames = [
-            pygame.transform.scale(pygame.image.load(f"spaceship_000{i}.png"), (50, 50))
+            pygame.transform.scale(pygame.image.load(f"img/spaceship_000{i}.png"), (50, 50))
             for i in range(1, 4)
         ]
         self.spaceship_x = 50
