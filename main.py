@@ -22,7 +22,7 @@ while running:
             running = False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
-                disparo.shoot(spaceship_x, spaceship_y)
+                disparo.shoot(nave.spaceship_x, nave.spaceship_y)
 
     fondo.mover()
 
