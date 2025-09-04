@@ -31,12 +31,9 @@ while running:
     if asteroide.fuera_de_pantalla():
         asteroide = Asteroide()
 
-    screen.fill((0, 0, 0))
-
     disparo.update()
     nave.mover(screen, dt)
     asteroide.mover(screen)
-    screen.blit(spaceship_frames[frame_index], (spaceship_x, spaceship_y))
     pygame.display.flip()
 
 pygame.quit()
