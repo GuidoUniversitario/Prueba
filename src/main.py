@@ -1,5 +1,5 @@
 import pygame
-from nave import Nave
+from src.nave import Nave
 from src.disparo import Disparo
 from src.fondo import Fondo
 from src.asteroide import Asteroide
@@ -26,7 +26,6 @@ while running:
                 disparo.shoot(nave.spaceship_x, nave.spaceship_y)
 
     fondo.mover()
-
 
     if asteroide.fuera_de_pantalla():
         asteroide = Asteroide()
