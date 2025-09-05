@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import Mock, patch
-from src.fondo import Fondo  # asumiendo que la clase está en fondo.py
+from fondo import Fondo  # asumiendo que la clase está en fondo.py
 
 
 class TestFondo(unittest.TestCase):

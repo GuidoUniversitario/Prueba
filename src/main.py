@@ -1,8 +1,8 @@
 import pygame
-from src.nave import Nave
-from src.disparo import Disparo
-from src.fondo import Fondo
-from src.asteroide import Asteroide
+from nave import Nave
+from disparo import Disparo
+from fondo import Fondo
+from asteroide import Asteroide
 pygame.init()
 
 screen = pygame.display.set_mode((640, 480))

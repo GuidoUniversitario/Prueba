@@ -6,7 +6,7 @@ import os
 # Añadir path a src/ para poder importar disparo.py
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.disparo import Disparo
+from disparo import Disparo
 
 
 class TestDisparo(unittest.TestCase):
@@ -24,7 +24,7 @@ class TestDisparo(unittest.TestCase):
 
     def test_inicializacion(self):
         self.assertEqual(self.disparo.lasers, [])
-        self.assertEqual(self.disparo.laser_speed, 1)
+        self.assertEqual(self.disparo.laser_speed, 20)
         self.assertIs(self.disparo.screen, self.mock_screen)
         self.assertIs(self.disparo.laser_img, self.mock_image)
 
@@ -39,12 +39,12 @@ class TestDisparo(unittest.TestCase):
         # Añadir disparos manualmente
         self.disparo.lasers = [{"x": 100, "y": 50}]
         self.disparo.update()
-        self.assertEqual(self.disparo.lasers[0]["x"], 101)  # Se movió 1 px
+        self.assertEqual(self.disparo.lasers[0]["x"], 120)  # Se movió 20 px
 
     def test_elimina_lasers_fuera_de_pantalla(self):
         # Uno dentro, uno fuera
         self.disparo.lasers = [
-            {"x": 638, "y": 10},
+            {"x": 619, "y": 10},
             {"x": 640, "y": 20},
             {"x": 800, "y": 30}
         ]
@@ -56,7 +56,7 @@ class TestDisparo(unittest.TestCase):
     def test_dibuja_lasers(self):
         self.disparo.lasers = [{"x": 100, "y": 50}]
         self.disparo.update()
-        self.mock_screen.blit.assert_called_with(self.mock_image, (101, 50))
+        self.mock_screen.blit.assert_called_with(self.mock_image, (120, 50))
 
 
 if __name__ == '__main__':

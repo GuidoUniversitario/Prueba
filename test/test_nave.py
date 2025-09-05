@@ -8,7 +8,7 @@ import os
 # Añadir el path para importar nave.py desde src/
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.nave import Nave
+from nave import Nave
 
 
 class TestNave(unittest.TestCase):
