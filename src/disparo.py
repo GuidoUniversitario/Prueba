@@ -6,7 +6,7 @@ class Disparo:
         self.laser_img = pygame.image.load("img/laser.png")
         self.laser_img = pygame.transform.scale(self.laser_img, (25, 25))
         self.lasers = []
-        self.laser_speed = 1
+        self.laser_speed = 20
 
     def shoot(self, x, y):
         laser_x = x + 45

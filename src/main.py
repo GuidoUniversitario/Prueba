@@ -2,7 +2,7 @@ import pygame
 from nave import Nave
 from disparo import Disparo
 from fondo import Fondo
-
+from asteroide import Asteroide
 pygame.init()
 
 screen = pygame.display.set_mode((640, 480))
@@ -11,6 +11,7 @@ nave = Nave()
 
 fondo = Fondo(screen)
 disparo = Disparo(screen)
+asteroide = Asteroide()
 
 clock = pygame.time.Clock()
 
@@ -26,10 +27,12 @@ while running:
 
     fondo.mover()
 
-    screen.fill((0, 0, 0))
+    if asteroide.fuera_de_pantalla():
+        asteroide = Asteroide()
 
     disparo.update()
     nave.mover(screen, dt)
+    asteroide.mover(screen)
     pygame.display.flip()
 
 pygame.quit()
