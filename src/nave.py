@@ -34,3 +34,6 @@ class Nave:
             self.frame_index = (self.frame_index + 1) % len(self.spaceship_frames)
 
         screen.blit(self.spaceship_frames[self.frame_index], (self.spaceship_x, self.spaceship_y))
+
+    def get_rect(self):
+        return pygame.Rect(self.spaceship_x, self.spaceship_y, 50, 50)
