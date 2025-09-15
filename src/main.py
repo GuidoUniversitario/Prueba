@@ -3,6 +3,9 @@ from nave import Nave
 from disparo import Disparo
 from fondo import Fondo
 from asteroide import Asteroide
+from nave_enemiga import Nave_Enemiga
+from disparo_enemigo import Disparo_Enemigo
+
 pygame.init()
 
 screen = pygame.display.set_mode((640, 480))
@@ -12,6 +15,8 @@ nave = Nave()
 fondo = Fondo(screen)
 disparo = Disparo(screen)
 asteroide = Asteroide()
+nave_enemiga = Nave_Enemiga(screen)
+disparos_enemigos = []
 
 clock = pygame.time.Clock()
 
@@ -30,9 +35,21 @@ while running:
     if asteroide.fuera_de_pantalla():
         asteroide = Asteroide()
 
+    if nave_enemiga.fuera_de_pantalla():
+        nave_enemiga = Nave_Enemiga(screen)
+
+    for disparo_enemigo in disparos_enemigos[:]:
+        disparo_enemigo.update()
+        disparo_enemigo.draw()
+        if disparo_enemigo.fuera_de_pantalla():
+            disparos_enemigos.remove(disparo_enemigo)
+
     disparo.update()
     nave.mover(screen, dt)
     asteroide.mover(screen)
+    disparo_enemigo_nuevo = nave_enemiga.mover(screen, dt)
+    if disparo_enemigo_nuevo:
+        disparos_enemigos.append(disparo_enemigo_nuevo)
     pygame.display.flip()
 
 pygame.quit()
