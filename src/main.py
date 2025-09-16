@@ -33,6 +33,11 @@ while running:
     disparo.update()
     nave.mover(screen, dt)
     asteroide.mover(screen)
+    for laser in disparo.lasers:
+        if laser["rect"].colliderect(asteroide.rect):
+            disparo.lasers.remove(laser)
+            asteroide = Asteroide()
+            break
     pygame.display.flip()
 
 pygame.quit()
