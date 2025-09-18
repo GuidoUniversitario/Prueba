@@ -16,3 +16,6 @@ class Asteroide:
 
     def fuera_de_pantalla(self):
         return self.x < 0
+
+    def get_rect(self):
+        return pygame.Rect(self.x, self.y, 25, 25)
