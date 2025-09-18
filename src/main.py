@@ -5,6 +5,7 @@ from fondo import Fondo
 from asteroide import Asteroide
 from nave_enemiga import Nave_Enemiga
 from disparo_enemigo import Disparo_Enemigo
+from nave_veloz import Nave_Veloz
 
 pygame.init()
 
@@ -16,6 +17,7 @@ fondo = Fondo(screen)
 disparo = Disparo(screen)
 asteroide = Asteroide()
 nave_enemiga = Nave_Enemiga(screen)
+nave_veloz = Nave_Veloz(nave)
 disparos_enemigos = []
 
 clock = pygame.time.Clock()
@@ -50,6 +52,8 @@ while running:
     disparo_enemigo_nuevo = nave_enemiga.mover(screen, dt)
     if disparo_enemigo_nuevo:
         disparos_enemigos.append(disparo_enemigo_nuevo)
+    nave_veloz.update()
+    screen.blit(nave_veloz.image, nave_veloz.rect)
     pygame.display.flip()
 
 pygame.quit()
