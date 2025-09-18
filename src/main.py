@@ -38,10 +38,16 @@ def jugar(vidas_restantes=3):
             disparo.update()
             nave.mover(screen, dt)
             asteroide.mover(screen)
-
+            
             if explosion is None and nave.get_rect().colliderect(asteroide.get_rect()):
                 explosion = Explosion(nave.spaceship_x, nave.spaceship_y)
 
+        for laser in disparo.lasers:
+            if laser["rect"].colliderect(asteroide.rect):
+                disparo.lasers.remove(laser)
+                asteroide = Asteroide()
+                break
+                
         if explosion:
             explosion.update(screen, dt)
             if explosion.finished:

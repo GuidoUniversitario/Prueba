@@ -7,9 +7,11 @@ class Asteroide:
         self.x = 640
         self.y = random.randint(0, 472)
         self.velocidad = random.randint(3, 6)
+        self.rect = pygame.Rect(self.x, self.y, 25, 25)
 
     def mover(self, screen):
         self.x -= self.velocidad
+        self.rect.x = self.x
         screen.blit(self.asteroide_img, (self.x, self.y))
 
     def fuera_de_pantalla(self):

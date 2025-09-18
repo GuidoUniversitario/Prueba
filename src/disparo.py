@@ -11,11 +11,13 @@ class Disparo:
     def shoot(self, x, y):
         laser_x = x + 45
         laser_y = y + 15
-        self.lasers.append({"x": laser_x, "y": laser_y})
+        rect = pygame.Rect(laser_x, laser_y, 25, 25)
+        self.lasers.append({"x": laser_x, "y": laser_y, "rect": rect})
 
     def update(self):
         for laser in self.lasers:
             laser["x"] += self.laser_speed
+            laser["rect"].x = laser["x"]
 
         self.lasers = [laser for laser in self.lasers if laser["x"] < 640]
 
