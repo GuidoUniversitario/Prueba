@@ -1,49 +1,57 @@
 import pygame
 import random
 
-
 class Nave_Veloz(pygame.sprite.Sprite):
     def __init__(self, jugador, pantalla_ancho=640, pantalla_alto=480):
         super().__init__()
 
-        # Imagen de la nave enemiga (puedes cambiar esto por una imagen real)
-        self.image = pygame.Surface((40, 20))
-        self.image.fill((255, 0, 0))  # Color rojo para identificarla
-        self.rect = self.image.get_rect()
+        self.nave_enemiga_frames = [
+            pygame.transform.scale(pygame.image.load(f"img/flank_attacker_000{i}.png"), (50, 50))
+            for i in range(1, 4)
+        ]
+        self.frame_index = 0
+        self.animation_timer = 0
+        self.animation_speed = 100  # milisegundos por frame
 
-        # Posición inicial (fuera de la pantalla por la derecha)
+        self.image = self.nave_enemiga_frames[0]
+        self.rect = self.image.get_rect()
         self.rect.x = pantalla_ancho + 10
         self.rect.y = random.randint(0, pantalla_alto - self.rect.height)
 
-        # Velocidades
-        self.vel_x = -2.0  # inicial
-        self.max_vel_x = -10.0  # máxima hacia la izquierda
-        self.aceleracion_x = -0.5  # cada frame
+        self.vel_x = -2.0
+        self.max_vel_x = -10.0
+        self.aceleracion_x = -0.5
 
         self.vel_y = 0
-        self.max_vel_y = 2.0  # velocidad vertical máxima
-        self.jugador = jugador  # referencia a la nave del jugador
+        self.max_vel_y = 2.0
 
-    def update(self):
+        self.jugador = jugador
+
+    def update(self, dt):
+        self.animation_timer += dt
+        if self.animation_timer >= self.animation_speed:
+            self.animation_timer = 0
+            self.frame_index = (self.frame_index + 1) % len(self.nave_enemiga_frames)
+            self.image = self.nave_enemiga_frames[self.frame_index]
+
         # Aceleración hacia la izquierda
         if self.vel_x > self.max_vel_x:
             self.vel_x += self.aceleracion_x
 
-        # Movimiento horizontal
         self.rect.x += int(self.vel_x)
 
-        # Seguimiento vertical (lento)
-        if self.jugador.rect.centery < self.rect.centery:
+        # Seguimiento vertical
+        jugador_rect = self.jugador.get_rect()
+
+        if jugador_rect.centery < self.rect.centery:
             self.vel_y = max(self.vel_y - 0.1, -self.max_vel_y)
-        elif self.jugador.rect.centery > self.rect.centery:
+        elif jugador_rect.centery > self.rect.centery:
             self.vel_y = min(self.vel_y + 0.1, self.max_vel_y)
         else:
-            self.vel_y *= 0.9  # desaceleración si ya está alineado
+            self.vel_y *= 0.9
 
-        # Movimiento vertical
         self.rect.y += int(self.vel_y)
 
-        # Limitar al área de la pantalla
         if self.rect.top < 0:
             self.rect.top = 0
             self.vel_y = 0
@@ -51,6 +59,8 @@ class Nave_Veloz(pygame.sprite.Sprite):
             self.rect.bottom = 480
             self.vel_y = 0
 
-        # Destruir si sale completamente de la pantalla por la izquierda
         if self.rect.right < 0:
             self.kill()
+
+    def get_rect(self):
+        return self.rect

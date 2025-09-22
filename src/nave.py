@@ -9,10 +9,6 @@ class Nave:
         self.spaceship_x = 50
         self.spaceship_y = 200
 
-        self.width = 50
-        self.height = 50
-        self.rect = pygame.Rect(self.spaceship_x, self.spaceship_y, self.width, self.height)
-
         self.frame_index = 0
         self.animation_timer = 0
         self.animation_speed = 100
@@ -31,7 +27,6 @@ class Nave:
 
         self.spaceship_x = max(0, min(self.spaceship_x, 640 - 50))
         self.spaceship_y = max(0, min(self.spaceship_y, 480 - 50))
-        self.rect.topleft = (self.spaceship_x, self.spaceship_y)
 
         self.animation_timer += dt
         if self.animation_timer >= self.animation_speed:
@@ -39,3 +34,6 @@ class Nave:
             self.frame_index = (self.frame_index + 1) % len(self.spaceship_frames)
 
         screen.blit(self.spaceship_frames[self.frame_index], (self.spaceship_x, self.spaceship_y))
+
+    def get_rect(self):
+        return pygame.Rect(self.spaceship_x, self.spaceship_y, 50, 50)

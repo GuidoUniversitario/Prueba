@@ -45,3 +45,6 @@ class Nave_Enemiga:
             return self.y < 0
         else:
             return self.y > 480
+
+    def get_rect(self):
+        return pygame.Rect(self.x, self.y, 50, 50)
