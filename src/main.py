@@ -85,12 +85,13 @@ def jugar(vidas_restantes=3):
                 vidas.restar()
                 if vidas.esta_sin_vidas():
                     font = pygame.font.SysFont(None, 80)
+                    pygame.time.delay(1500)
                     texto = font.render("GAME OVER", True, (255, 0, 0))
                     text_rect = texto.get_rect(center=(320, 240))
 
                     screen.blit(texto, text_rect)
                     pygame.display.flip()
-                    pygame.time.delay(6000)
+                    pygame.time.delay(4500)
 
                     pygame.quit()
                     return
