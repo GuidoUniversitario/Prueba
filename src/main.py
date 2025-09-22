@@ -15,7 +15,6 @@ def jugar(vidas_restantes=3):
     screen = pygame.display.set_mode((640, 480))
     pygame.display.set_caption("Mi primer juego")
     nave = Nave()
-
     fondo = Fondo(screen)
     disparo = Disparo(screen)
     asteroide = Asteroide()
@@ -92,14 +91,11 @@ def jugar(vidas_restantes=3):
                     screen.blit(texto, text_rect)
                     pygame.display.flip()
                     pygame.time.delay(4500)
-
                     pygame.quit()
                     return
                 else:
                     jugar(vidas.vidas)
                     return
-
         vidas.mostrar()
         pygame.display.flip()
-
 jugar()
