@@ -23,6 +23,7 @@ def jugar(vidas_restantes=3):
     disparos_enemigos = []
     explosion = None
     vidas = Vidas(vidas_restantes, screen)
+    explosiones = []
 
     clock = pygame.time.Clock()
 
@@ -63,10 +64,25 @@ def jugar(vidas_restantes=3):
             if explosion is None and nave.get_rect().colliderect(nave_veloz.get_rect()):
                 explosion = Explosion(nave.spaceship_x, nave.spaceship_y)
 
-        for laser in disparo.lasers:
+        for laser in disparo.lasers[:]:
             if laser["rect"].colliderect(asteroide.rect):
                 disparo.lasers.remove(laser)
+                explosiones.append(Explosion(asteroide.x, asteroide.y))
                 asteroide = Asteroide()
+                break
+
+        for laser in disparo.lasers[:]:
+            if laser["rect"].colliderect(nave_enemiga.get_rect()):
+                disparo.lasers.remove(laser)
+                explosiones.append(Explosion(nave_enemiga.x, nave_enemiga.y))
+                nave_enemiga = Nave_Enemiga(screen)
+                break
+
+        for laser in disparo.lasers[:]:
+            if laser["rect"].colliderect(nave_veloz.get_rect()):
+                disparo.lasers.remove(laser)
+                explosiones.append(Explosion(nave_veloz.rect.x, nave_veloz.rect.y))
+                nave_veloz = Nave_Veloz(nave)
                 break
 
         for disparo_enemigo in disparos_enemigos[:]:
@@ -97,5 +113,9 @@ def jugar(vidas_restantes=3):
                     jugar(vidas.vidas)
                     return
         vidas.mostrar()
+        for explosion_obj in explosiones[:]:
+            explosion_obj.update(screen, dt)
+            if explosion_obj.finished:
+                explosiones.remove(explosion_obj)
         pygame.display.flip()
 jugar()
