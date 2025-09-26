@@ -59,8 +59,8 @@ class Nave_Veloz(pygame.sprite.Sprite):
             self.rect.bottom = 480
             self.vel_y = 0
 
-        if self.rect.right < 0:
-            self.kill()
-
     def get_rect(self):
         return self.rect
+
+    def fuera_de_pantalla(self):
+        return self.rect.right < 0

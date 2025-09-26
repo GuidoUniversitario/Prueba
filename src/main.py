@@ -1,8 +1,10 @@
 import pygame
+import random
 from nave import Nave
 from disparo import Disparo
 from fondo import Fondo
 from asteroide import Asteroide
+from asteroide_grande import Asteroide_Grande
 from nave_enemiga import Nave_Enemiga
 from disparo_enemigo import Disparo_Enemigo
 from nave_veloz import Nave_Veloz
@@ -17,9 +19,10 @@ def jugar(vidas_restantes=3):
     nave = Nave()
     fondo = Fondo(screen)
     disparo = Disparo(screen)
-    asteroide = Asteroide()
-    nave_enemiga = Nave_Enemiga(screen)
-    nave_veloz = Nave_Veloz(nave)
+    asteroides = [Asteroide(), Asteroide()]
+    asteroides_grandes = [Asteroide_Grande()]
+    naves_enemigas = [Nave_Enemiga(screen)]
+    naves_veloces = [Nave_Veloz(nave)]
     disparos_enemigos = []
     explosion = None
     vidas = Vidas(vidas_restantes, screen)
@@ -40,36 +43,81 @@ def jugar(vidas_restantes=3):
         fondo.mover()
 
         if explosion is None:
-            if asteroide.fuera_de_pantalla():
-                asteroide = Asteroide()
-
-            if nave_enemiga.fuera_de_pantalla():
-                nave_enemiga = Nave_Enemiga(screen)
-
             disparo.update()
             nave.mover(screen, dt)
-            asteroide.mover(screen)
-            disparo_enemigo_nuevo = nave_enemiga.mover(screen, dt)
+            for asteroide in asteroides:
+                asteroide.mover(screen)
+            for ast in asteroides[:]:
+                if ast.fuera_de_pantalla():
+                    asteroides.remove(ast)
+                    asteroides.append(Asteroide())
+            for asteroide_grande in asteroides_grandes:
+                asteroide_grande.mover(screen)
+            for ast_g in asteroides_grandes[:]:
+                if ast_g.fuera_de_pantalla():
+                    asteroides_grandes.remove(ast_g)
+                    asteroides_grandes.append(Asteroide_Grande())
+            for nave_e in naves_enemigas:
+                disparo_enemigo_nuevo = nave_e.mover(screen, dt)
+                if disparo_enemigo_nuevo:
+                    disparos_enemigos.append(disparo_enemigo_nuevo)
             if disparo_enemigo_nuevo:
                 disparos_enemigos.append(disparo_enemigo_nuevo)
-            nave_veloz.update(dt)
-            screen.blit(nave_veloz.image, nave_veloz.rect)
+            for nave_e in naves_enemigas[:]:
+                if nave_e.fuera_de_pantalla():
+                    naves_enemigas.remove(nave_e)
+                    naves_enemigas.append(Nave_Enemiga(screen))
+            for nave_v in naves_veloces:
+                nave_v.update(dt)
+                screen.blit(nave_v.image, nave_v.rect)
+            for nave_v in naves_veloces[:]:
+                if nave_v.fuera_de_pantalla():
+                    naves_veloces.remove(nave_v)
+                    naves_veloces.append(Nave_Veloz(nave))
 
-            if explosion is None and nave.get_rect().colliderect(asteroide.get_rect()):
-                explosion = Explosion(nave.spaceship_x, nave.spaceship_y)
-
-            if explosion is None and nave.get_rect().colliderect(nave_enemiga.get_rect()):
-                explosion = Explosion(nave.spaceship_x, nave.spaceship_y)
-
-            if explosion is None and nave.get_rect().colliderect(nave_veloz.get_rect()):
-                explosion = Explosion(nave.spaceship_x, nave.spaceship_y)
+            for ast in asteroides:
+                if nave.get_rect().colliderect(ast.get_rect()):
+                    explosion = Explosion(nave.spaceship_x, nave.spaceship_y)
+                    break
+            for ast_g in asteroides_grandes:
+                if nave.get_rect().colliderect(ast_g.get_rect()):
+                    explosion = Explosion(nave.spaceship_x, nave.spaceship_y)
+                    break
+            for nave_e in naves_enemigas:
+                if nave.get_rect().colliderect(nave_e.get_rect()):
+                    explosion = Explosion(nave.spaceship_x, nave.spaceship_y)
+                    break
+            for nave_v in naves_veloces:
+                if nave.get_rect().colliderect(nave_v.get_rect()):
+                    explosion = Explosion(nave.spaceship_x, nave.spaceship_y)
+                    break
 
         for laser in disparo.lasers[:]:
-            if laser["rect"].colliderect(asteroide.rect):
-                disparo.lasers.remove(laser)
-                explosiones.append(Explosion(asteroide.x, asteroide.y))
-                asteroide = Asteroide()
-                break
+            colision_detectada = False
+            for ast in asteroides[:]:
+                if laser["rect"].colliderect(ast.get_rect()):
+                    colision_detectada = True
+                    disparo.lasers.remove(laser)
+                    explosiones.append(Explosion(asteroide.x, asteroide.y))
+                    asteroides.remove(ast)
+                    break  # Salir del bucle de asteroides
+            if not colision_detectada:
+                for ast_g in asteroides_grandes[:]:
+                    if laser["rect"].colliderect(ast_g.get_rect()):
+                        colision_detectada = True
+                        asteroides_grandes.remove(ast_g)
+                        # Crear dos asteroides pequeños en su lugar
+                        for i in range(2):
+                            nuevo_ast = Asteroide()
+                            nuevo_ast.x = ast_g.x
+                            nuevo_ast.y = ast_g.y + random.randint(-15, 15)
+                            nuevo_ast.rect.x = nuevo_ast.x
+                            nuevo_ast.rect.y = nuevo_ast.y
+                            asteroides.append(nuevo_ast)
+                        break  # Salir del bucle de asteroides grandes
+            if colision_detectada:
+                if laser in disparo.lasers:
+                    disparo.lasers.remove(laser)
 
         for laser in disparo.lasers[:]:
             if laser["rect"].colliderect(nave_enemiga.get_rect()):
