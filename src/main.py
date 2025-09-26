@@ -26,6 +26,7 @@ def jugar(vidas_restantes=3):
     disparos_enemigos = []
     explosion = None
     vidas = Vidas(vidas_restantes, screen)
+    explosiones = []
 
     clock = pygame.time.Clock()
 
@@ -96,6 +97,8 @@ def jugar(vidas_restantes=3):
             for ast in asteroides[:]:
                 if laser["rect"].colliderect(ast.get_rect()):
                     colision_detectada = True
+                    disparo.lasers.remove(laser)
+                    explosiones.append(Explosion(asteroide.x, asteroide.y))
                     asteroides.remove(ast)
                     break  # Salir del bucle de asteroides
             if not colision_detectada:
@@ -112,10 +115,23 @@ def jugar(vidas_restantes=3):
                             nuevo_ast.rect.y = nuevo_ast.y
                             asteroides.append(nuevo_ast)
                         break  # Salir del bucle de asteroides grandes
-
             if colision_detectada:
                 if laser in disparo.lasers:
                     disparo.lasers.remove(laser)
+
+        for laser in disparo.lasers[:]:
+            if laser["rect"].colliderect(nave_enemiga.get_rect()):
+                disparo.lasers.remove(laser)
+                explosiones.append(Explosion(nave_enemiga.x, nave_enemiga.y))
+                nave_enemiga = Nave_Enemiga(screen)
+                break
+
+        for laser in disparo.lasers[:]:
+            if laser["rect"].colliderect(nave_veloz.get_rect()):
+                disparo.lasers.remove(laser)
+                explosiones.append(Explosion(nave_veloz.rect.x, nave_veloz.rect.y))
+                nave_veloz = Nave_Veloz(nave)
+                break
 
         for disparo_enemigo in disparos_enemigos[:]:
             disparo_enemigo.update()
@@ -145,5 +161,9 @@ def jugar(vidas_restantes=3):
                     jugar(vidas.vidas)
                     return
         vidas.mostrar()
+        for explosion_obj in explosiones[:]:
+            explosion_obj.update(screen, dt)
+            if explosion_obj.finished:
+                explosiones.remove(explosion_obj)
         pygame.display.flip()
 jugar()
