@@ -10,6 +10,7 @@ from disparo_enemigo import Disparo_Enemigo
 from nave_veloz import Nave_Veloz
 from explosion import Explosion
 from vidas import Vidas
+from oleadas import ManejadorOleadas
 
 def jugar(vidas_restantes=3):
     pygame.init()
@@ -19,16 +20,30 @@ def jugar(vidas_restantes=3):
     nave = Nave()
     fondo = Fondo(screen)
     disparo = Disparo(screen)
-    asteroides = [Asteroide(), Asteroide()]
-    asteroides_grandes = [Asteroide_Grande()]
-    naves_enemigas = [Nave_Enemiga(screen)]
-    naves_veloces = [Nave_Veloz(nave)]
+
+    asteroides = []
+    asteroides_grandes = []
+    naves_enemigas = []
+    naves_veloces = []
     disparos_enemigos = []
     explosion = None
     vidas = Vidas(vidas_restantes, screen)
     explosiones = []
 
+    def spawn_enemigo(tipo):
+        if tipo == "asteroide":
+            asteroides.append(Asteroide())
+        elif tipo == "asteroide_grande":
+            asteroides_grandes.append(Asteroide_Grande())
+        elif tipo == "nave_enemiga":
+            naves_enemigas.append(Nave_Enemiga(screen))
+        elif tipo == "nave_veloz":
+            naves_veloces.append(Nave_Veloz(nave))
+
     clock = pygame.time.Clock()
+
+    manejador_oleadas = ManejadorOleadas(spawn_enemigo)
+    manejador_oleadas.iniciar()
 
     running = True
     while running:
@@ -50,30 +65,24 @@ def jugar(vidas_restantes=3):
             for ast in asteroides[:]:
                 if ast.fuera_de_pantalla():
                     asteroides.remove(ast)
-                    asteroides.append(Asteroide())
             for asteroide_grande in asteroides_grandes:
                 asteroide_grande.mover(screen)
             for ast_g in asteroides_grandes[:]:
                 if ast_g.fuera_de_pantalla():
                     asteroides_grandes.remove(ast_g)
-                    asteroides_grandes.append(Asteroide_Grande())
             for nave_e in naves_enemigas:
                 disparo_enemigo_nuevo = nave_e.mover(screen, dt)
                 if disparo_enemigo_nuevo:
                     disparos_enemigos.append(disparo_enemigo_nuevo)
-            if disparo_enemigo_nuevo:
-                disparos_enemigos.append(disparo_enemigo_nuevo)
             for nave_e in naves_enemigas[:]:
                 if nave_e.fuera_de_pantalla():
                     naves_enemigas.remove(nave_e)
-                    naves_enemigas.append(Nave_Enemiga(screen))
             for nave_v in naves_veloces:
                 nave_v.update(dt)
                 screen.blit(nave_v.image, nave_v.rect)
             for nave_v in naves_veloces[:]:
                 if nave_v.fuera_de_pantalla():
                     naves_veloces.remove(nave_v)
-                    naves_veloces.append(Nave_Veloz(nave))
 
             for ast in asteroides:
                 if nave.get_rect().colliderect(ast.get_rect()):
@@ -118,20 +127,20 @@ def jugar(vidas_restantes=3):
             if colision_detectada:
                 if laser in disparo.lasers:
                     disparo.lasers.remove(laser)
-
-        for laser in disparo.lasers[:]:
-            if laser["rect"].colliderect(nave_enemiga.get_rect()):
-                disparo.lasers.remove(laser)
-                explosiones.append(Explosion(nave_enemiga.x, nave_enemiga.y))
-                nave_enemiga = Nave_Enemiga(screen)
-                break
-
-        for laser in disparo.lasers[:]:
-            if laser["rect"].colliderect(nave_veloz.get_rect()):
-                disparo.lasers.remove(laser)
-                explosiones.append(Explosion(nave_veloz.rect.x, nave_veloz.rect.y))
-                nave_veloz = Nave_Veloz(nave)
-                break
+            for nave_e in naves_enemigas[:]:
+                if laser["rect"].colliderect(nave_e.get_rect()):
+                    colision_detectada = True
+                    disparo.lasers.remove(laser)
+                    explosiones.append(Explosion(nave_e.x, nave_e.y))
+                    naves_enemigas.remove(nave_e)
+                    break
+            for nave_v in naves_veloces:
+                if laser["rect"].colliderect(nave_v.get_rect()):
+                    colision_detectada = True
+                    disparo.lasers.remove(laser)
+                    explosiones.append(Explosion(nave_v.rect.x, nave_v.rect.y))
+                    naves_veloces.remove(nave_v)
+                    break
 
         for disparo_enemigo in disparos_enemigos[:]:
             disparo_enemigo.update()
@@ -155,6 +164,7 @@ def jugar(vidas_restantes=3):
                     screen.blit(texto, text_rect)
                     pygame.display.flip()
                     pygame.time.delay(4500)
+                    manejador_oleadas.detener()
                     pygame.quit()
                     return
                 else:
@@ -165,5 +175,6 @@ def jugar(vidas_restantes=3):
             explosion_obj.update(screen, dt)
             if explosion_obj.finished:
                 explosiones.remove(explosion_obj)
+        manejador_oleadas.dibujar(screen)
         pygame.display.flip()
 jugar()
