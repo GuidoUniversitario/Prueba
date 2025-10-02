@@ -18,7 +18,7 @@ class ManejadorOleadas:
         self.numero_imgs = [
             pygame.image.load(f"img/future_numbers_000{i}.png") for i in range(10)
         ]
-        self.numero_imgs = [pygame.transform.scale(img, (30, 40)) for img in self.numero_imgs]
+        self.numero_imgs = [pygame.transform.scale(img, (15, 20)) for img in self.numero_imgs]
 
     def iniciar(self):
         self._hilo.start()

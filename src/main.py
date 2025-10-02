@@ -107,19 +107,20 @@ def jugar(vidas_restantes=3):
                 if laser["rect"].colliderect(ast.get_rect()):
                     colision_detectada = True
                     disparo.lasers.remove(laser)
-                    explosiones.append(Explosion(asteroide.x, asteroide.y))
+                    explosiones.append(Explosion(ast.x, ast.y))
                     asteroides.remove(ast)
                     break  # Salir del bucle de asteroides
             if not colision_detectada:
                 for ast_g in asteroides_grandes[:]:
                     if laser["rect"].colliderect(ast_g.get_rect()):
                         colision_detectada = True
+                        explosiones.append(Explosion(ast_g.x, ast_g.y))
                         asteroides_grandes.remove(ast_g)
                         # Crear dos asteroides pequeños en su lugar
                         for i in range(2):
                             nuevo_ast = Asteroide()
                             nuevo_ast.x = ast_g.x
-                            nuevo_ast.y = ast_g.y + random.randint(-15, 15)
+                            nuevo_ast.y = ast_g.y + random.randint(-45, 45)
                             nuevo_ast.rect.x = nuevo_ast.x
                             nuevo_ast.rect.y = nuevo_ast.y
                             asteroides.append(nuevo_ast)
