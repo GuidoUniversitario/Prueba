@@ -121,6 +121,11 @@ def jugar(vidas_restantes=3):
                             nuevo_ast = Asteroide()
                             nuevo_ast.x = ast_g.x
                             nuevo_ast.y = ast_g.y + random.randint(-45, 45)
+                            # Velocidad vertical: uno hacia arriba, otro hacia abajo
+                            if i == 0:
+                                nuevo_ast.velocidad_y = -2  # Hacia arriba
+                            else:
+                                nuevo_ast.velocidad_y = 2  # Hacia abajo
                             nuevo_ast.rect.x = nuevo_ast.x
                             nuevo_ast.rect.y = nuevo_ast.y
                             asteroides.append(nuevo_ast)
