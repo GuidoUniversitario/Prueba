@@ -31,21 +31,39 @@ class ManejadorOleadas:
             print(f"\n🌊 Iniciando oleada {self.oleada_actual} en 5 segundos...")
             time.sleep(5)
 
-            for _ in range(5):
-                if self._detener:
-                    return
-
-                tipo = random.choice(["asteroide", "asteroide_grande", "nave_enemiga", "nave_veloz"])
-                cantidad = random.randint(2, 5)
-                print(f"➡️ Spawneando {cantidad} enemigos tipo '{tipo}'")
-
-                for _ in range(cantidad):
+            if self.oleada_actual == 1:
+                # Grupos fijos por tipo para la primera oleada
+                tipos_fijos = ["asteroide", "nave_enemiga", "asteroide_grande", "nave_veloz"]
+                for tipo in tipos_fijos:
                     if self._detener:
                         return
-                    self.spawn_callback(tipo)
-                    time.sleep(0.5)
+                    cantidad = random.randint(2, 5)
+                    print(f"➡️ [Oleada 1] Spawneando {cantidad} enemigos tipo '{tipo}'")
 
-                time.sleep(2)
+                    for _ in range(cantidad):
+                        if self._detener:
+                            return
+                        self.spawn_callback(tipo)
+                        time.sleep(0.5)
+
+                    time.sleep(2)
+            else:
+            # Oleadas aleatorias normales a partir de la segunda
+                for _ in range(5):
+                    if self._detener:
+                        return
+
+                    tipo = random.choice(["asteroide", "asteroide_grande", "nave_enemiga", "nave_veloz"])
+                    cantidad = random.randint(2, 5)
+                    print(f"➡️ Spawneando {cantidad} enemigos tipo '{tipo}'")
+
+                    for _ in range(cantidad):
+                        if self._detener:
+                            return
+                        self.spawn_callback(tipo)
+                        time.sleep(0.5)
+
+                    time.sleep(2)
 
             self.oleada_actual += 1
 
