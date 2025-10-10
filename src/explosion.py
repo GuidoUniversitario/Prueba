@@ -1,10 +1,10 @@
 import pygame
 
 class Explosion:
-    def __init__(self, x, y):
+    def __init__(self, x, y, size=50):
         self.frames = [
             pygame.transform.scale(
-                pygame.image.load(f"img/explosion_1_000{i}.png"), (50, 50)
+                pygame.image.load(f"img/explosion_1_000{i}.png"), (size, size)
             ) for i in range(1, 4)
         ]
         self.x = x
