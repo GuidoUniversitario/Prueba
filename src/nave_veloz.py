@@ -6,7 +6,7 @@ class Nave_Veloz(pygame.sprite.Sprite):
         super().__init__()
 
         self.nave_enemiga_frames = [
-            pygame.transform.scale(pygame.image.load(f"img/flank_attacker_000{i}.png"), (50, 50))
+            pygame.transform.scale(pygame.image.load(f"img/speed_enemy_000{i}.png"), (50, 50))
             for i in range(1, 4)
         ]
         self.frame_index = 0
