@@ -11,6 +11,7 @@ from nave_veloz import Nave_Veloz
 from explosion import Explosion
 from vidas import Vidas
 from oleadas import ManejadorOleadas
+from powerup import PowerUp
 
 def jugar(vidas_restantes=3):
     pygame.init()
@@ -29,6 +30,7 @@ def jugar(vidas_restantes=3):
     explosion = None
     vidas = Vidas(vidas_restantes, screen)
     explosiones = []
+    powerups = []
 
     def spawn_enemigo(tipo):
         if tipo == "asteroide":
@@ -83,6 +85,11 @@ def jugar(vidas_restantes=3):
             for nave_v in naves_veloces[:]:
                 if nave_v.fuera_de_pantalla():
                     naves_veloces.remove(nave_v)
+            for powerup in powerups[:]:
+                powerup.mover()
+                powerup.draw(screen)
+                if powerup.fuera_de_pantalla():
+                    powerups.remove(powerup)
 
             for ast in asteroides:
                 if nave.get_rect().colliderect(ast.get_rect()):
@@ -100,6 +107,11 @@ def jugar(vidas_restantes=3):
                 if nave.get_rect().colliderect(nave_v.get_rect()):
                     explosion = Explosion(nave.spaceship_x, nave.spaceship_y)
                     break
+            for powerup in powerups[:]:
+                if nave.get_rect().colliderect(powerup.get_rect()):
+                    powerups.remove(powerup)
+                    # Aquí puedes definir qué hace el power-up
+                    print("Power-up recogido!")  # Reemplaza esto con el efecto real
 
         for laser in disparo.lasers[:]:
             colision_detectada = False
@@ -109,6 +121,8 @@ def jugar(vidas_restantes=3):
                     disparo.lasers.remove(laser)
                     explosiones.append(Explosion(ast.x, ast.y))
                     asteroides.remove(ast)
+                    if random.random() < 0.1:
+                        powerups.append(PowerUp(ast.x, ast.y))
                     break  # Salir del bucle de asteroides
             if not colision_detectada:
                 for ast_g in asteroides_grandes[:]:
@@ -139,6 +153,8 @@ def jugar(vidas_restantes=3):
                     disparo.lasers.remove(laser)
                     explosiones.append(Explosion(nave_e.x, nave_e.y))
                     naves_enemigas.remove(nave_e)
+                    if random.random() < 0.1:
+                        powerups.append(PowerUp(nave_e.x, nave_e.y))
                     break
             for nave_v in naves_veloces:
                 if laser["rect"].colliderect(nave_v.get_rect()):
@@ -146,6 +162,8 @@ def jugar(vidas_restantes=3):
                     disparo.lasers.remove(laser)
                     explosiones.append(Explosion(nave_v.rect.x, nave_v.rect.y))
                     naves_veloces.remove(nave_v)
+                    if random.random() < 0.1:
+                        powerups.append(PowerUp(nave_v.rect.x, nave_v.rect.y))
                     break
 
         for disparo_enemigo in disparos_enemigos[:]:
