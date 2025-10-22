@@ -3,16 +3,20 @@ import random
 
 class PowerUp:
     def __init__(self, x, y):
-        self.images = [
-            pygame.image.load("img/powerup1.png").convert_alpha(),
-            pygame.image.load("img/powerup2.png").convert_alpha(),
-            pygame.image.load("img/powerup3.png").convert_alpha()
-        ]
-        self.image = random.choice(self.images)
+        self.tipos = {
+            "img/powerup1.png": "disparo_triple",
+            "img/powerup2.png": "auto_disparo",
+            "img/powerup3.png": "misil"
+        }
+
+        self.image_path = random.choice(list(self.tipos.keys()))
+        self.image = pygame.image.load(self.image_path).convert_alpha()
+        self.tipo = self.tipos[self.image_path]
+
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.velocidad_x = -1  # Flota lentamente hacia la izquierda
+        self.velocidad_x = -1
 
     def mover(self):
         self.rect.x += self.velocidad_x
