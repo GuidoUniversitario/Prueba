@@ -10,7 +10,7 @@ class PowerUp:
         }
 
         self.image_path = random.choice(list(self.tipos.keys()))
-        self.image = pygame.image.load(self.image_path).convert_alpha()
+        self.image = pygame.transform.scale(pygame.image.load(self.image_path).convert_alpha(), (32, 32))
         self.tipo = self.tipos[self.image_path]
 
         self.rect = self.image.get_rect()

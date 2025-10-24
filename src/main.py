@@ -82,7 +82,7 @@ def jugar(vidas_restantes=3):
         fondo.mover()
 
         if explosion is None:
-            disparo.update()
+            disparo.update(dt)
             nave.mover(screen, dt)
             for asteroide in asteroides:
                 asteroide.mover(screen)
@@ -191,43 +191,62 @@ def jugar(vidas_restantes=3):
                     break
 
         for misil in disparo.misiles[:]:
-            # Para cada tipo de enemigo:
+            misil.update(screen, dt)  # ← ahora recibe dt para manejar su temporizador
+
+            # Si el misil explotó automáticamente o por impacto
+            if misil.ha_explotado():
+                disparo.misiles.remove(misil)
+                continue  # Ya terminó su ciclo
+
+            # Comprobaciones de colisiones (solo si aún no explotó)
+            colision = False
+
             for ast in asteroides[:]:
                 if misil.get_rect().colliderect(ast.get_rect()):
+                    colision = True
                     disparo.misiles.remove(misil)
                     asteroides.remove(ast)
                     explosiones.append(Explosion(ast.x, ast.y))
-                    # quizá generar power‑up...
-                    break  # salir del bucle asteroides
-            else:  # sólo si no rompió con asteroides
-                for ast_g in asteroides_grandes[:]:
-                    if misil.get_rect().colliderect(ast_g.get_rect()):
-                        disparo.misiles.remove(misil)
-                        asteroides_grandes.remove(ast_g)
-                        explosiones.append(Explosion(ast_g.x, ast_g.y))
-                        # Crear dos asteroides pequeños en su lugar
-                        for i in range(2):
-                            nuevo_ast = Asteroide()
-                            nuevo_ast.x = ast_g.x
-                            nuevo_ast.y = ast_g.y + random.randint(-45, 45)
-                            # Velocidad vertical: uno hacia arriba, otro hacia abajo
-                            if i == 0:
-                                nuevo_ast.velocidad_y = -2  # Hacia arriba
-                            else:
-                                nuevo_ast.velocidad_y = 2  # Hacia abajo
-                            nuevo_ast.rect.x = nuevo_ast.x
-                            nuevo_ast.rect.y = nuevo_ast.y
-                            asteroides.append(nuevo_ast)
-                        break
-            # Y de igual modo para naves enemigas y naves veloces:
+                    break
+
+            if colision:
+                continue
+
+            for ast_g in asteroides_grandes[:]:
+                if misil.get_rect().colliderect(ast_g.get_rect()):
+                    colision = True
+                    disparo.misiles.remove(misil)
+                    asteroides_grandes.remove(ast_g)
+                    explosiones.append(Explosion(ast_g.x, ast_g.y))
+
+                    # Dividir en dos asteroides pequeños
+                    for i in range(2):
+                        nuevo_ast = Asteroide()
+                        nuevo_ast.x = ast_g.x
+                        nuevo_ast.y = ast_g.y + random.randint(-45, 45)
+                        nuevo_ast.velocidad_y = -2 if i == 0 else 2
+                        nuevo_ast.rect.x = nuevo_ast.x
+                        nuevo_ast.rect.y = nuevo_ast.y
+                        asteroides.append(nuevo_ast)
+                    break
+
+            if colision:
+                continue
+
             for nave_e in naves_enemigas[:]:
                 if misil.get_rect().colliderect(nave_e.get_rect()):
+                    colision = True
                     disparo.misiles.remove(misil)
                     naves_enemigas.remove(nave_e)
                     explosiones.append(Explosion(nave_e.x, nave_e.y))
                     break
+
+            if colision:
+                continue
+
             for nave_v in naves_veloces[:]:
                 if misil.get_rect().colliderect(nave_v.get_rect()):
+                    colision = True
                     disparo.misiles.remove(misil)
                     naves_veloces.remove(nave_v)
                     explosiones.append(Explosion(nave_v.rect.x, nave_v.rect.y))
@@ -286,11 +305,11 @@ def jugar(vidas_restantes=3):
             # Barra roja o azul (según tipo, opcional)
             color = (0, 255, 0)  # Verde, por defecto
             if nave.modo_disparo == "disparo_triple":
-                color = (0, 255, 0)
+                color = (225, 135, 52)
             elif nave.modo_disparo == "auto_disparo":
-                color = (255, 0, 0)
+                color = (72, 25, 173)
             elif nave.modo_disparo == "misil":
-                color = (0, 0, 255)
+                color = (0, 100, 33)
 
             pygame.draw.rect(screen, color, (barra_x, barra_y, ancho_actual, barra_alto))
         pygame.display.flip()
