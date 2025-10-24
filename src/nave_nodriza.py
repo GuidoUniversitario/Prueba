@@ -6,18 +6,14 @@ from explosion import Explosion
 class Nave_Nodriza(pygame.sprite.Sprite):
     def __init__(self, screen, disparos_enemigos, disparos_jugador):
         self.screen = screen
-        self.imagenes = [pygame.transform.scale(pygame.image.load(f"img/flank_attacker_000{i}.png"), (150, 150))
-            for i in range (1,4)
-        ]  # Lista de imágenes animadas
-        self.imagen = self.imagenes[0]
-        self.indice_animacion = 0
-        self.rect = self.imagenes[0].get_rect(midright=(700, 240))  # Entrando desde la derecha
+        self.imagen = pygame.transform.scale(pygame.image.load(f"img/mothership.png"), (150, 150))
+        self.rect = self.imagen.get_rect(midright=(700, 240))  # Entrando desde la derecha
         self.velocidad_movimiento = 2
         self.direccion_movimiento = 1  # 1 para abajo, -1 para arriba
         self.limite_superior = 50
         self.limite_inferior = 430
         self.estado = "entrando"  # o "activo"
-        self.vida = 10
+        self.vida = 20
         self.esta_destruida = False
         self.disparos_enemigos = disparos_enemigos
         self.tiempo_ultimo_disparo = pygame.time.get_ticks()
@@ -29,15 +25,8 @@ class Nave_Nodriza(pygame.sprite.Sprite):
             if self.rect.x <= 500:
                 self.estado = "activo"
         elif self.estado == "activo":
-            self.animar()
             self.mover_vertical()
             self.disparar()
-
-    def animar(self):
-        self.indice_animacion += 0.1  # velocidad de animación
-        if self.indice_animacion >= len(self.imagenes):
-            self.indice_animacion = 0
-        self.imagen = self.imagenes[int(self.indice_animacion)]
 
     def draw(self):
         self.screen.blit(self.imagen, self.rect)
