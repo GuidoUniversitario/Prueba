@@ -31,8 +31,11 @@ def jugar(vidas_restantes=3):
     vidas = Vidas(vidas_restantes, screen)
     explosiones = []
     powerups = []
+    nave_nodriza = None
 
     def spawn_enemigo(tipo):
+        nonlocal nave_nodriza
+        
         if tipo == "asteroide":
             asteroides.append(Asteroide())
         elif tipo == "asteroide_grande":
@@ -41,10 +44,17 @@ def jugar(vidas_restantes=3):
             naves_enemigas.append(Nave_Enemiga(screen))
         elif tipo == "nave_veloz":
             naves_veloces.append(Nave_Veloz(nave))
+        elif tipo == "nave_nodriza":
+            if nave_nodriza is None:
+                from nave_nodriza import Nave_Nodriza
+                nave_nodriza = Nave_Nodriza(screen, disparos_enemigos, disparo.lasers)
 
     clock = pygame.time.Clock()
 
-    manejador_oleadas = ManejadorOleadas(spawn_enemigo)
+    def esta_nodriza_viva():
+        return nave_nodriza is not None and not nave_nodriza.esta_destruida
+
+    manejador_oleadas = ManejadorOleadas(spawn_enemigo, esta_nodriza_viva)
     manejador_oleadas.iniciar()
 
     running = True
@@ -112,6 +122,13 @@ def jugar(vidas_restantes=3):
                 powerup.draw(screen)
                 if powerup.fuera_de_pantalla():
                     powerups.remove(powerup)
+
+            if nave_nodriza:
+                nave_nodriza.update()
+                nave_nodriza.draw()
+                if nave_nodriza.esta_destruida:
+                    explosiones.append(Explosion(nave_nodriza.rect.x, nave_nodriza.rect.y, 150))
+                    nave_nodriza = None
 
             for ast in asteroides:
                 if nave.get_rect().colliderect(ast.get_rect()):
@@ -251,6 +268,12 @@ def jugar(vidas_restantes=3):
                     naves_veloces.remove(nave_v)
                     explosiones.append(Explosion(nave_v.rect.x, nave_v.rect.y))
                     break
+            if nave_nodriza and not nave_nodriza.esta_destruida:
+                for laser in disparo.lasers[:]:
+                    if nave_nodriza.get_rect().colliderect(laser["rect"]):
+                        explosiones.append(Explosion(laser["rect"].x, laser["rect"].y))
+                        disparo.lasers.remove(laser)
+                        nave_nodriza.recibir_dano()
 
         for disparo_enemigo in disparos_enemigos[:]:
             disparo_enemigo.update()
