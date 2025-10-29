@@ -11,6 +11,7 @@ from nave_veloz import Nave_Veloz
 from explosion import Explosion
 from vidas import Vidas
 from oleadas import ManejadorOleadas
+from puntaje import Puntaje
 
 def jugar(vidas_restantes=3):
     pygame.init()
@@ -29,6 +30,7 @@ def jugar(vidas_restantes=3):
     explosion = None
     vidas = Vidas(vidas_restantes, screen)
     explosiones = []
+    puntaje = Puntaje(screen)
 
     def spawn_enemigo(tipo):
         if tipo == "asteroide":
@@ -109,6 +111,7 @@ def jugar(vidas_restantes=3):
                     disparo.lasers.remove(laser)
                     explosiones.append(Explosion(ast.x, ast.y))
                     asteroides.remove(ast)
+                    puntaje.sumar(10)
                     break  # Salir del bucle de asteroides
             if not colision_detectada:
                 for ast_g in asteroides_grandes[:]:
@@ -116,6 +119,7 @@ def jugar(vidas_restantes=3):
                         colision_detectada = True
                         explosiones.append(Explosion(ast_g.x, ast_g.y))
                         asteroides_grandes.remove(ast_g)
+                        puntaje.sumar(20)
                         # Crear dos asteroides pequeños en su lugar
                         for i in range(2):
                             nuevo_ast = Asteroide()
@@ -139,6 +143,7 @@ def jugar(vidas_restantes=3):
                     disparo.lasers.remove(laser)
                     explosiones.append(Explosion(nave_e.x, nave_e.y))
                     naves_enemigas.remove(nave_e)
+                    puntaje.sumar(15)
                     break
             for nave_v in naves_veloces:
                 if laser["rect"].colliderect(nave_v.get_rect()):
@@ -146,6 +151,7 @@ def jugar(vidas_restantes=3):
                     disparo.lasers.remove(laser)
                     explosiones.append(Explosion(nave_v.rect.x, nave_v.rect.y))
                     naves_veloces.remove(nave_v)
+                    puntaje.sumar(20)
                     break
 
         for disparo_enemigo in disparos_enemigos[:]:
@@ -182,5 +188,7 @@ def jugar(vidas_restantes=3):
             if explosion_obj.finished:
                 explosiones.remove(explosion_obj)
         manejador_oleadas.dibujar(screen)
+        puntaje.mostrar()
+
         pygame.display.flip()
 jugar()
