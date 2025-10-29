@@ -18,6 +18,7 @@ class Nave_Nodriza(pygame.sprite.Sprite):
         self.disparos_enemigos = disparos_enemigos
         self.tiempo_ultimo_disparo = pygame.time.get_ticks()
         self.tiempo_entre_disparos = 1000  # milisegundos, por ejemplo 1 segundo entre disparos
+        self.disparos_jugador = disparos_jugador
 
     def update(self):
         if self.estado == "entrando":
