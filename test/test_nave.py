@@ -13,39 +13,47 @@ from nave import Nave
 
 class TestNave(unittest.TestCase):
 
-    @patch('pygame.image.load')
-    @patch('pygame.transform.scale')
-    def setUp(self, mock_scale, mock_load):
-        # Mockear el retorno de la imagen cargada y escalada
-        mock_image = MagicMock()
-        mock_scale.return_value = mock_image
+    def setUp(self):
+        # Mock general de las funciones de pygame para evitar carga de imágenes reales
+        patcher_load = patch('pygame.image.load', return_value=MagicMock())
+        patcher_scale = patch('pygame.transform.scale', side_effect=lambda img, size: img)
+        self.addCleanup(patcher_load.stop)
+        self.addCleanup(patcher_scale.stop)
+        patcher_load.start()
+        patcher_scale.start()
+
+        # Evitar inicialización completa de pygame
+        pygame.display.set_mode = MagicMock()
+
         self.nave = Nave()
 
     def test_inicializacion(self):
+        """Verifica los valores iniciales de la nave."""
         self.assertEqual(len(self.nave.spaceship_frames), 3)
         self.assertEqual(self.nave.spaceship_x, 50)
         self.assertEqual(self.nave.spaceship_y, 200)
         self.assertEqual(self.nave.frame_index, 0)
         self.assertEqual(self.nave.animation_timer, 0)
         self.assertEqual(self.nave.animation_speed, 100)
+        self.assertEqual(self.nave.modo_disparo, "normal")
 
     @patch('pygame.key.get_pressed')
     def test_mover_sin_tecla(self, mock_get_pressed):
-        # Simular que no se presiona ninguna tecla
+        """Si no se presionan teclas, la nave no debe moverse."""
         mock_get_pressed.return_value = defaultdict(lambda: False)
 
         screen = MagicMock()
-        x_antes = self.nave.spaceship_x
-        y_antes = self.nave.spaceship_y
+        x_antes, y_antes = self.nave.spaceship_x, self.nave.spaceship_y
 
         self.nave.mover(screen, dt=50)
 
         self.assertEqual(self.nave.spaceship_x, x_antes)
         self.assertEqual(self.nave.spaceship_y, y_antes)
+        screen.blit.assert_called_once()  # Debe dibujar aunque no se mueva
 
     @patch('pygame.key.get_pressed')
     def test_mover_con_teclas(self, mock_get_pressed):
-        # Simular teclas presionadas
+        """Debe moverse hacia arriba e izquierda cuando se presionan las teclas."""
         keys = defaultdict(lambda: False)
         keys[pygame.K_LEFT] = True
         keys[pygame.K_UP] = True
@@ -62,13 +70,13 @@ class TestNave(unittest.TestCase):
 
     @patch('pygame.key.get_pressed')
     def test_limites_movimiento(self, mock_get_pressed):
+        """La nave no debe salir de los límites de la pantalla."""
         mock_get_pressed.return_value = defaultdict(lambda: False)
 
         self.nave.spaceship_x = -10
         self.nave.spaceship_y = -20
         screen = MagicMock()
-
-        self.nave.mover(screen, dt=0)  # No animación ni movimiento
+        self.nave.mover(screen, dt=0)
 
         self.assertGreaterEqual(self.nave.spaceship_x, 0)
         self.assertGreaterEqual(self.nave.spaceship_y, 0)
@@ -82,6 +90,7 @@ class TestNave(unittest.TestCase):
 
     @patch('pygame.key.get_pressed')
     def test_animacion_cambia_frame(self, mock_get_pressed):
+        """Debe avanzar al siguiente frame de animación si el timer >= speed."""
         mock_get_pressed.return_value = defaultdict(lambda: False)
 
         screen = MagicMock()
@@ -95,6 +104,7 @@ class TestNave(unittest.TestCase):
 
     @patch('pygame.key.get_pressed')
     def test_animacion_no_cambia_si_dt_chico(self, mock_get_pressed):
+        """Si el delta time es muy bajo, no debe cambiar el frame."""
         mock_get_pressed.return_value = defaultdict(lambda: False)
 
         screen = MagicMock()
@@ -104,6 +114,14 @@ class TestNave(unittest.TestCase):
         self.nave.mover(screen, dt=0)
 
         self.assertEqual(self.nave.frame_index, 1)
+
+    def test_get_rect(self):
+        """El rectángulo debe coincidir con las coordenadas y tamaño esperados."""
+        rect = self.nave.get_rect()
+        self.assertEqual(rect.x, self.nave.spaceship_x)
+        self.assertEqual(rect.y, self.nave.spaceship_y)
+        self.assertEqual(rect.width, 50)
+        self.assertEqual(rect.height, 50)
 
 
 if __name__ == '__main__':

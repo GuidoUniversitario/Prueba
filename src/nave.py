@@ -13,6 +13,11 @@ class Nave:
         self.animation_timer = 0
         self.animation_speed = 100
 
+        self.modo_disparo = "normal"  # Puede ser: "normal", "disparo_triple", "auto_disparo", "misil"
+        self.ultimo_disparo = 0  # Para el cooldown
+        self.powerup_tiempo = 0  # Tiempo en milisegundos que dura el power-up
+        self.powerup_inicio = None  # Timestamp de cuando se activó
+
     # En el main loop
     def mover(self, screen, dt):
         keys = pygame.key.get_pressed()

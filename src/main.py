@@ -12,6 +12,7 @@ from explosion import Explosion
 from vidas import Vidas
 from oleadas import ManejadorOleadas
 from puntaje import Puntaje
+from powerup import PowerUp
 
 def jugar(vidas_restantes=3):
     pygame.init()
@@ -31,8 +32,12 @@ def jugar(vidas_restantes=3):
     vidas = Vidas(vidas_restantes, screen)
     explosiones = []
     puntaje = Puntaje(screen)
+    powerups = []
+    nave_nodriza = None
 
     def spawn_enemigo(tipo):
+        nonlocal nave_nodriza
+        
         if tipo == "asteroide":
             asteroides.append(Asteroide())
         elif tipo == "asteroide_grande":
@@ -41,10 +46,17 @@ def jugar(vidas_restantes=3):
             naves_enemigas.append(Nave_Enemiga(screen))
         elif tipo == "nave_veloz":
             naves_veloces.append(Nave_Veloz(nave))
+        elif tipo == "nave_nodriza":
+            if nave_nodriza is None:
+                from nave_nodriza import Nave_Nodriza
+                nave_nodriza = Nave_Nodriza(screen, disparos_enemigos, disparo.lasers)
 
     clock = pygame.time.Clock()
 
-    manejador_oleadas = ManejadorOleadas(spawn_enemigo)
+    def esta_nodriza_viva():
+        return nave_nodriza is not None and not nave_nodriza.esta_destruida
+
+    manejador_oleadas = ManejadorOleadas(spawn_enemigo, esta_nodriza_viva)
     manejador_oleadas.iniciar()
 
     running = True
@@ -55,12 +67,34 @@ def jugar(vidas_restantes=3):
                 running = False
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    disparo.shoot(nave.spaceship_x, nave.spaceship_y)
+                    if nave.modo_disparo == "disparo_triple":
+                        disparo.shoot_triple(nave.spaceship_x, nave.spaceship_y)
+                    elif nave.modo_disparo == "misil":
+                        enemigos_todos = asteroides + asteroides_grandes + naves_enemigas + naves_veloces
+                        disparo.shoot_misil(nave.spaceship_x, nave.spaceship_y, enemigos_todos)
+                    elif nave.modo_disparo == "normal":
+                        disparo.shoot(nave.spaceship_x, nave.spaceship_y)
+
+            # Verificar si el power-up expiró
+            if nave.modo_disparo != "normal" and nave.powerup_inicio:
+                tiempo_actual = pygame.time.get_ticks()
+                tiempo_transcurrido = tiempo_actual - nave.powerup_inicio
+                if tiempo_transcurrido >= nave.powerup_tiempo:
+                    nave.modo_disparo = "normal"
+                    nave.powerup_inicio = None
+                    nave.powerup_tiempo = 0
+
+        keys = pygame.key.get_pressed()
+        if nave.modo_disparo == "auto_disparo" and keys[pygame.K_SPACE]:
+            tiempo_actual = pygame.time.get_ticks()
+            if tiempo_actual - disparo.auto_timer >= disparo.auto_cooldown:
+                disparo.shoot(nave.spaceship_x, nave.spaceship_y)
+                disparo.auto_timer = tiempo_actual
 
         fondo.mover()
 
         if explosion is None:
-            disparo.update()
+            disparo.update(dt)
             nave.mover(screen, dt)
             for asteroide in asteroides:
                 asteroide.mover(screen)
@@ -85,6 +119,18 @@ def jugar(vidas_restantes=3):
             for nave_v in naves_veloces[:]:
                 if nave_v.fuera_de_pantalla():
                     naves_veloces.remove(nave_v)
+            for powerup in powerups[:]:
+                powerup.mover()
+                powerup.draw(screen)
+                if powerup.fuera_de_pantalla():
+                    powerups.remove(powerup)
+
+            if nave_nodriza:
+                nave_nodriza.update()
+                nave_nodriza.draw()
+                if nave_nodriza.esta_destruida:
+                    explosiones.append(Explosion(nave_nodriza.rect.x, nave_nodriza.rect.y, 150))
+                    nave_nodriza = None
 
             for ast in asteroides:
                 if nave.get_rect().colliderect(ast.get_rect()):
@@ -102,6 +148,13 @@ def jugar(vidas_restantes=3):
                 if nave.get_rect().colliderect(nave_v.get_rect()):
                     explosion = Explosion(nave.spaceship_x, nave.spaceship_y)
                     break
+            for powerup in powerups[:]:
+                if nave.get_rect().colliderect(powerup.get_rect()):
+                    powerups.remove(powerup)
+                    nave.modo_disparo = powerup.tipo
+                    nave.powerup_tiempo = 20000  # 20 segundos
+                    nave.powerup_inicio = pygame.time.get_ticks()
+                    print(f"Power-up recogido: {nave.modo_disparo}")
 
         for laser in disparo.lasers[:]:
             colision_detectada = False
@@ -112,6 +165,8 @@ def jugar(vidas_restantes=3):
                     explosiones.append(Explosion(ast.x, ast.y))
                     asteroides.remove(ast)
                     puntaje.sumar(10)
+                    if random.random() < 0.1:
+                        powerups.append(PowerUp(ast.x, ast.y))
                     break  # Salir del bucle de asteroides
             if not colision_detectada:
                 for ast_g in asteroides_grandes[:]:
@@ -144,6 +199,8 @@ def jugar(vidas_restantes=3):
                     explosiones.append(Explosion(nave_e.x, nave_e.y))
                     naves_enemigas.remove(nave_e)
                     puntaje.sumar(15)
+                    if random.random() < 0.1:
+                        powerups.append(PowerUp(nave_e.x, nave_e.y))
                     break
             for nave_v in naves_veloces:
                 if laser["rect"].colliderect(nave_v.get_rect()):
@@ -152,7 +209,77 @@ def jugar(vidas_restantes=3):
                     explosiones.append(Explosion(nave_v.rect.x, nave_v.rect.y))
                     naves_veloces.remove(nave_v)
                     puntaje.sumar(20)
+                    if random.random() < 0.1:
+                        powerups.append(PowerUp(nave_v.rect.x, nave_v.rect.y))
                     break
+
+        for misil in disparo.misiles[:]:
+            misil.update(screen, dt)  # ← ahora recibe dt para manejar su temporizador
+
+            # Si el misil explotó automáticamente o por impacto
+            if misil.ha_explotado():
+                disparo.misiles.remove(misil)
+                continue  # Ya terminó su ciclo
+
+            # Comprobaciones de colisiones (solo si aún no explotó)
+            colision = False
+
+            for ast in asteroides[:]:
+                if misil.get_rect().colliderect(ast.get_rect()):
+                    colision = True
+                    disparo.misiles.remove(misil)
+                    asteroides.remove(ast)
+                    explosiones.append(Explosion(ast.x, ast.y))
+                    break
+
+            if colision:
+                continue
+
+            for ast_g in asteroides_grandes[:]:
+                if misil.get_rect().colliderect(ast_g.get_rect()):
+                    colision = True
+                    disparo.misiles.remove(misil)
+                    asteroides_grandes.remove(ast_g)
+                    explosiones.append(Explosion(ast_g.x, ast_g.y))
+
+                    # Dividir en dos asteroides pequeños
+                    for i in range(2):
+                        nuevo_ast = Asteroide()
+                        nuevo_ast.x = ast_g.x
+                        nuevo_ast.y = ast_g.y + random.randint(-45, 45)
+                        nuevo_ast.velocidad_y = -2 if i == 0 else 2
+                        nuevo_ast.rect.x = nuevo_ast.x
+                        nuevo_ast.rect.y = nuevo_ast.y
+                        asteroides.append(nuevo_ast)
+                    break
+
+            if colision:
+                continue
+
+            for nave_e in naves_enemigas[:]:
+                if misil.get_rect().colliderect(nave_e.get_rect()):
+                    colision = True
+                    disparo.misiles.remove(misil)
+                    naves_enemigas.remove(nave_e)
+                    explosiones.append(Explosion(nave_e.x, nave_e.y))
+                    break
+
+            if colision:
+                continue
+
+            for nave_v in naves_veloces[:]:
+                if misil.get_rect().colliderect(nave_v.get_rect()):
+                    colision = True
+                    disparo.misiles.remove(misil)
+                    naves_veloces.remove(nave_v)
+                    explosiones.append(Explosion(nave_v.rect.x, nave_v.rect.y))
+                    break
+            if nave_nodriza and not nave_nodriza.esta_destruida:
+                for laser in disparo.lasers[:]:
+                    if nave_nodriza.get_rect().colliderect(laser["rect"]):
+                        explosiones.append(Explosion(laser["rect"].x, laser["rect"].y))
+                        disparo.lasers.remove(laser)
+                        nave_nodriza.recibir_dano()
 
         for disparo_enemigo in disparos_enemigos[:]:
             disparo_enemigo.update()
@@ -190,5 +317,31 @@ def jugar(vidas_restantes=3):
         manejador_oleadas.dibujar(screen)
         puntaje.mostrar()
 
+        if nave.modo_disparo != "normal" and nave.powerup_inicio:
+            tiempo_actual = pygame.time.get_ticks()
+            tiempo_transcurrido = tiempo_actual - nave.powerup_inicio
+            tiempo_restante = max(0, nave.powerup_tiempo - tiempo_transcurrido)
+
+            # Tamaño de la barra (proporcional al tiempo restante)
+            barra_ancho_total = 200
+            barra_alto = 15
+            barra_x = 10
+            barra_y = 455  # Parte inferior izquierda
+
+            proporcion = tiempo_restante / nave.powerup_tiempo
+            ancho_actual = int(barra_ancho_total * proporcion)
+
+            # Fondo gris
+            pygame.draw.rect(screen, (100, 100, 100), (barra_x, barra_y, barra_ancho_total, barra_alto))
+            # Barra roja o azul (según tipo, opcional)
+            color = (0, 255, 0)  # Verde, por defecto
+            if nave.modo_disparo == "disparo_triple":
+                color = (225, 135, 52)
+            elif nave.modo_disparo == "auto_disparo":
+                color = (72, 25, 173)
+            elif nave.modo_disparo == "misil":
+                color = (0, 100, 33)
+
+            pygame.draw.rect(screen, color, (barra_x, barra_y, ancho_actual, barra_alto))
         pygame.display.flip()
 jugar()
