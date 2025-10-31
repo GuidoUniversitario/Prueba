@@ -130,6 +130,7 @@ def jugar(vidas_restantes=3):
                 nave_nodriza.draw()
                 if nave_nodriza.esta_destruida:
                     explosiones.append(Explosion(nave_nodriza.rect.x, nave_nodriza.rect.y, 150))
+                    puntaje.sumar(500)
                     nave_nodriza = None
 
             for ast in asteroides:
@@ -230,6 +231,7 @@ def jugar(vidas_restantes=3):
                     disparo.misiles.remove(misil)
                     asteroides.remove(ast)
                     explosiones.append(Explosion(ast.x, ast.y))
+                    puntaje.sumar(10)
                     break
 
             if colision:
@@ -241,6 +243,7 @@ def jugar(vidas_restantes=3):
                     disparo.misiles.remove(misil)
                     asteroides_grandes.remove(ast_g)
                     explosiones.append(Explosion(ast_g.x, ast_g.y))
+                    puntaje.sumar(20)
 
                     # Dividir en dos asteroides pequeños
                     for i in range(2):
@@ -262,6 +265,7 @@ def jugar(vidas_restantes=3):
                     disparo.misiles.remove(misil)
                     naves_enemigas.remove(nave_e)
                     explosiones.append(Explosion(nave_e.x, nave_e.y))
+                    puntaje.sumar(15)
                     break
 
             if colision:
@@ -273,6 +277,7 @@ def jugar(vidas_restantes=3):
                     disparo.misiles.remove(misil)
                     naves_veloces.remove(nave_v)
                     explosiones.append(Explosion(nave_v.rect.x, nave_v.rect.y))
+                    puntaje.sumar(20)
                     break
             if nave_nodriza and not nave_nodriza.esta_destruida:
                 for laser in disparo.lasers[:]:
