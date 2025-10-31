@@ -11,6 +11,7 @@ from nave_veloz import Nave_Veloz
 from explosion import Explosion
 from vidas import Vidas
 from oleadas import ManejadorOleadas
+from puntaje import Puntaje
 from powerup import PowerUp
 
 def jugar(vidas_restantes=3):
@@ -30,6 +31,7 @@ def jugar(vidas_restantes=3):
     explosion = None
     vidas = Vidas(vidas_restantes, screen)
     explosiones = []
+    puntaje = Puntaje(screen)
     powerups = []
     nave_nodriza = None
 
@@ -162,6 +164,7 @@ def jugar(vidas_restantes=3):
                     disparo.lasers.remove(laser)
                     explosiones.append(Explosion(ast.x, ast.y))
                     asteroides.remove(ast)
+                    puntaje.sumar(10)
                     if random.random() < 0.1:
                         powerups.append(PowerUp(ast.x, ast.y))
                     break  # Salir del bucle de asteroides
@@ -171,6 +174,7 @@ def jugar(vidas_restantes=3):
                         colision_detectada = True
                         explosiones.append(Explosion(ast_g.x, ast_g.y))
                         asteroides_grandes.remove(ast_g)
+                        puntaje.sumar(20)
                         # Crear dos asteroides pequeños en su lugar
                         for i in range(2):
                             nuevo_ast = Asteroide()
@@ -194,6 +198,7 @@ def jugar(vidas_restantes=3):
                     disparo.lasers.remove(laser)
                     explosiones.append(Explosion(nave_e.x, nave_e.y))
                     naves_enemigas.remove(nave_e)
+                    puntaje.sumar(15)
                     if random.random() < 0.1:
                         powerups.append(PowerUp(nave_e.x, nave_e.y))
                     break
@@ -203,6 +208,7 @@ def jugar(vidas_restantes=3):
                     disparo.lasers.remove(laser)
                     explosiones.append(Explosion(nave_v.rect.x, nave_v.rect.y))
                     naves_veloces.remove(nave_v)
+                    puntaje.sumar(20)
                     if random.random() < 0.1:
                         powerups.append(PowerUp(nave_v.rect.x, nave_v.rect.y))
                     break
@@ -309,6 +315,8 @@ def jugar(vidas_restantes=3):
             if explosion_obj.finished:
                 explosiones.remove(explosion_obj)
         manejador_oleadas.dibujar(screen)
+        puntaje.mostrar()
+
         if nave.modo_disparo != "normal" and nave.powerup_inicio:
             tiempo_actual = pygame.time.get_ticks()
             tiempo_transcurrido = tiempo_actual - nave.powerup_inicio
