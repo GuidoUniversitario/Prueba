@@ -15,6 +15,7 @@ from powerup import PowerUp
 
 def jugar(vidas_restantes=3):
     pygame.init()
+    pygame.mixer.init()
 
     screen = pygame.display.set_mode((640, 480))
     pygame.display.set_caption("Mi primer juego")
@@ -32,6 +33,15 @@ def jugar(vidas_restantes=3):
     explosiones = []
     powerups = []
     nave_nodriza = None
+
+    sfx_disparo = pygame.mixer.Sound("audio/playerlaser.ogg")
+    sfx_disparo.set_volume(0.1)
+    sfx_explosion = pygame.mixer.Sound("audio/playerdeath.ogg")
+    sfx_explosion.set_volume(0.1)
+    sfx_explosion_enemigo = pygame.mixer.Sound("audio/enemydeath.ogg")
+    sfx_explosion_enemigo.set_volume(0.1)
+    sfx_powerup = pygame.mixer.Sound("audio/powerup.ogg")
+    sfx_powerup.set_volume(0.1)
 
     def spawn_enemigo(tipo):
         nonlocal nave_nodriza
@@ -66,11 +76,14 @@ def jugar(vidas_restantes=3):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     if nave.modo_disparo == "disparo_triple":
+                        sfx_disparo.play()
                         disparo.shoot_triple(nave.spaceship_x, nave.spaceship_y)
                     elif nave.modo_disparo == "misil":
                         enemigos_todos = asteroides + asteroides_grandes + naves_enemigas + naves_veloces
+                        sfx_disparo.play()
                         disparo.shoot_misil(nave.spaceship_x, nave.spaceship_y, enemigos_todos)
                     elif nave.modo_disparo == "normal":
+                        sfx_disparo.play()
                         disparo.shoot(nave.spaceship_x, nave.spaceship_y)
 
             # Verificar si el power-up expiró
@@ -86,6 +99,7 @@ def jugar(vidas_restantes=3):
         if nave.modo_disparo == "auto_disparo" and keys[pygame.K_SPACE]:
             tiempo_actual = pygame.time.get_ticks()
             if tiempo_actual - disparo.auto_timer >= disparo.auto_cooldown:
+                sfx_disparo.play()
                 disparo.shoot(nave.spaceship_x, nave.spaceship_y)
                 disparo.auto_timer = tiempo_actual
 
@@ -132,22 +146,27 @@ def jugar(vidas_restantes=3):
 
             for ast in asteroides:
                 if nave.get_rect().colliderect(ast.get_rect()):
+                    sfx_explosion.play()
                     explosion = Explosion(nave.spaceship_x, nave.spaceship_y)
                     break
             for ast_g in asteroides_grandes:
                 if nave.get_rect().colliderect(ast_g.get_rect()):
+                    sfx_explosion.play()
                     explosion = Explosion(nave.spaceship_x, nave.spaceship_y)
                     break
             for nave_e in naves_enemigas:
                 if nave.get_rect().colliderect(nave_e.get_rect()):
+                    sfx_explosion.play()
                     explosion = Explosion(nave.spaceship_x, nave.spaceship_y)
                     break
             for nave_v in naves_veloces:
                 if nave.get_rect().colliderect(nave_v.get_rect()):
+                    sfx_explosion.play()
                     explosion = Explosion(nave.spaceship_x, nave.spaceship_y)
                     break
             for powerup in powerups[:]:
                 if nave.get_rect().colliderect(powerup.get_rect()):
+                    sfx_powerup.play()
                     powerups.remove(powerup)
                     nave.modo_disparo = powerup.tipo
                     nave.powerup_tiempo = 20000  # 20 segundos
@@ -160,6 +179,7 @@ def jugar(vidas_restantes=3):
                 if laser["rect"].colliderect(ast.get_rect()):
                     colision_detectada = True
                     disparo.lasers.remove(laser)
+                    sfx_explosion_enemigo.play()
                     explosiones.append(Explosion(ast.x, ast.y))
                     asteroides.remove(ast)
                     if random.random() < 0.1:
@@ -169,6 +189,7 @@ def jugar(vidas_restantes=3):
                 for ast_g in asteroides_grandes[:]:
                     if laser["rect"].colliderect(ast_g.get_rect()):
                         colision_detectada = True
+                        sfx_explosion_enemigo.play()
                         explosiones.append(Explosion(ast_g.x, ast_g.y))
                         asteroides_grandes.remove(ast_g)
                         # Crear dos asteroides pequeños en su lugar
@@ -192,6 +213,7 @@ def jugar(vidas_restantes=3):
                 if laser["rect"].colliderect(nave_e.get_rect()):
                     colision_detectada = True
                     disparo.lasers.remove(laser)
+                    sfx_explosion_enemigo.play()
                     explosiones.append(Explosion(nave_e.x, nave_e.y))
                     naves_enemigas.remove(nave_e)
                     if random.random() < 0.1:
@@ -201,6 +223,7 @@ def jugar(vidas_restantes=3):
                 if laser["rect"].colliderect(nave_v.get_rect()):
                     colision_detectada = True
                     disparo.lasers.remove(laser)
+                    sfx_explosion_enemigo.play()
                     explosiones.append(Explosion(nave_v.rect.x, nave_v.rect.y))
                     naves_veloces.remove(nave_v)
                     if random.random() < 0.1:
@@ -223,6 +246,7 @@ def jugar(vidas_restantes=3):
                     colision = True
                     disparo.misiles.remove(misil)
                     asteroides.remove(ast)
+                    sfx_explosion_enemigo.play()
                     explosiones.append(Explosion(ast.x, ast.y))
                     break
 
@@ -234,6 +258,7 @@ def jugar(vidas_restantes=3):
                     colision = True
                     disparo.misiles.remove(misil)
                     asteroides_grandes.remove(ast_g)
+                    sfx_explosion_enemigo.play()
                     explosiones.append(Explosion(ast_g.x, ast_g.y))
 
                     # Dividir en dos asteroides pequeños
@@ -255,6 +280,7 @@ def jugar(vidas_restantes=3):
                     colision = True
                     disparo.misiles.remove(misil)
                     naves_enemigas.remove(nave_e)
+                    sfx_explosion_enemigo.play()
                     explosiones.append(Explosion(nave_e.x, nave_e.y))
                     break
 
@@ -266,6 +292,7 @@ def jugar(vidas_restantes=3):
                     colision = True
                     disparo.misiles.remove(misil)
                     naves_veloces.remove(nave_v)
+                    sfx_explosion_enemigo.play()
                     explosiones.append(Explosion(nave_v.rect.x, nave_v.rect.y))
                     break
             if nave_nodriza and not nave_nodriza.esta_destruida:
@@ -281,6 +308,7 @@ def jugar(vidas_restantes=3):
             if disparo_enemigo.fuera_de_pantalla():
                 disparos_enemigos.remove(disparo_enemigo)
             if explosion is None and nave.get_rect().colliderect(disparo_enemigo.get_rect()):
+                sfx_explosion.play()
                 explosion = Explosion(nave.spaceship_x, nave.spaceship_y)
                 break
 
