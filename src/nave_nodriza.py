@@ -20,6 +20,9 @@ class Nave_Nodriza(pygame.sprite.Sprite):
         self.tiempo_entre_disparos = 1000  # milisegundos, por ejemplo 1 segundo entre disparos
         self.disparos_jugador = disparos_jugador
 
+        self.sfx_disparo_jefe = pygame.mixer.Sound("audio/bosslaser.ogg")
+        self.sfx_disparo_jefe.set_volume(0.1)
+
     def update(self):
         if self.estado == "entrando":
             self.rect.x -= 1
@@ -47,6 +50,7 @@ class Nave_Nodriza(pygame.sprite.Sprite):
     def disparar(self):
         ahora = pygame.time.get_ticks()
         if ahora - self.tiempo_ultimo_disparo > self.tiempo_entre_disparos:
+            self.sfx_disparo_jefe.play()
             self.disparo_abanico()
             self.tiempo_ultimo_disparo = ahora
 

@@ -27,6 +27,11 @@ class Nave_Veloz(pygame.sprite.Sprite):
 
         self.jugador = jugador
 
+        self.sfx_nave_veloz = pygame.mixer.Sound("audio/speedyship.ogg")
+        self.sfx_nave_veloz.set_volume(0.1)
+
+        self.sfx_nave_veloz.play()
+
     def update(self, dt):
         self.animation_timer += dt
         if self.animation_timer >= self.animation_speed:
