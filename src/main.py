@@ -329,6 +329,9 @@ def jugar(vidas_restantes=3):
                     pygame.quit()
                     return
                 else:
+                    manejador_oleadas.detener()
+                    if manejador_oleadas._hilo.is_alive():
+                        manejador_oleadas._hilo.join(timeout=1)
                     jugar(vidas.vidas)
                     return
         vidas.mostrar()
