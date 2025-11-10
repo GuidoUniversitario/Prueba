@@ -14,7 +14,7 @@ from oleadas import ManejadorOleadas
 from puntaje import Puntaje
 from powerup import PowerUp
 
-def jugar(vidas_restantes=3):
+def jugar(vidas_restantes=3, puntaje=None, manejador_oleadas=None):
     pygame.init()
 
     screen = pygame.display.set_mode((640, 480))
@@ -22,7 +22,6 @@ def jugar(vidas_restantes=3):
     nave = Nave()
     fondo = Fondo(screen)
     disparo = Disparo(screen)
-
     asteroides = []
     asteroides_grandes = []
     naves_enemigas = []
@@ -31,9 +30,11 @@ def jugar(vidas_restantes=3):
     explosion = None
     vidas = Vidas(vidas_restantes, screen)
     explosiones = []
-    puntaje = Puntaje(screen)
     powerups = []
     nave_nodriza = None
+
+    if puntaje is None:
+        puntaje = Puntaje(screen)
 
     def spawn_enemigo(tipo):
         nonlocal nave_nodriza
@@ -56,8 +57,9 @@ def jugar(vidas_restantes=3):
     def esta_nodriza_viva():
         return nave_nodriza is not None and not nave_nodriza.esta_destruida
 
-    manejador_oleadas = ManejadorOleadas(spawn_enemigo, esta_nodriza_viva)
-    manejador_oleadas.iniciar()
+    if manejador_oleadas is None:
+        manejador_oleadas = ManejadorOleadas(spawn_enemigo, esta_nodriza_viva)
+        manejador_oleadas.iniciar()
 
     running = True
     while running:
@@ -303,16 +305,18 @@ def jugar(vidas_restantes=3):
                     font = pygame.font.SysFont(None, 80)
                     pygame.time.delay(1500)
                     texto = font.render("GAME OVER", True, (255, 0, 0))
-                    text_rect = texto.get_rect(center=(320, 240))
+                    text_rect = texto.get_rect(center=(320, 200))
 
                     screen.blit(texto, text_rect)
+                    puntaje.mostrar_final(screen)
+
                     pygame.display.flip()
                     pygame.time.delay(4500)
                     manejador_oleadas.detener()
                     pygame.quit()
                     return
                 else:
-                    jugar(vidas.vidas)
+                    jugar(vidas.vidas, puntaje, manejador_oleadas)
                     return
         vidas.mostrar()
         for explosion_obj in explosiones[:]:
