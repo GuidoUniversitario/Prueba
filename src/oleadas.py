@@ -23,6 +23,9 @@ class ManejadorOleadas:
         self.numero_imgs = [pygame.transform.scale(img, (15, 20)) for img in self.numero_imgs]
 
     def iniciar(self):
+        self._detener = False
+        self._hilo = threading.Thread(target=self._ciclo_oleadas)
+        self._hilo.daemon = True
         self._hilo.start()
 
     def detener(self):

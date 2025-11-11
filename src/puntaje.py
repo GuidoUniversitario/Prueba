@@ -25,3 +25,19 @@ class Puntaje:
             img = self.numero_imgs[int(digito)]
             self.screen.blit(img, (x, y))
             x += 20  # espacio entre dígitos
+
+    def mostrar_final(self, screen):
+        # Texto "Puntaje Final"
+        font = pygame.font.SysFont(None, 50)
+        texto = font.render("Puntaje Final:", True, (255, 255, 255))
+        text_rect = texto.get_rect(center=(320, 260))
+        screen.blit(texto, text_rect)
+
+        # Mostrar los dígitos con las imágenes
+        puntos_str = str(self.puntos)
+        x = 250  # posición inicial horizontal
+        y = 300  # debajo del texto
+        for digito in puntos_str:
+            img = self.numero_imgs[int(digito)]
+            screen.blit(img, (x, y))
+            x += 20
