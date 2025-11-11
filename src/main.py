@@ -14,7 +14,7 @@ from oleadas import ManejadorOleadas
 from puntaje import Puntaje
 from powerup import PowerUp
 
-def jugar(vidas_restantes=3, puntaje=None, manejador_oleadas=None):
+def jugar(vidas_restantes=3, puntaje=None, manejador_oleadas=None, oleada_actual=1):
     pygame.init()
 
     screen = pygame.display.set_mode((640, 480))
@@ -59,9 +59,11 @@ def jugar(vidas_restantes=3, puntaje=None, manejador_oleadas=None):
 
     if manejador_oleadas is None:
         manejador_oleadas = ManejadorOleadas(spawn_enemigo, esta_nodriza_viva)
+        manejador_oleadas.oleada_actual = oleada_actual
         manejador_oleadas.iniciar()
 
     running = True
+    resultado = None  # ← nuevo
     while running:
         dt = clock.tick(60)
         for event in pygame.event.get():
@@ -314,10 +316,13 @@ def jugar(vidas_restantes=3, puntaje=None, manejador_oleadas=None):
                     pygame.time.delay(4500)
                     manejador_oleadas.detener()
                     pygame.quit()
-                    return
+                    # devolver estado de fin de juego
+                    return "game_over", vidas.vidas, puntaje, manejador_oleadas.oleada_actual
                 else:
-                    jugar(vidas.vidas, puntaje, manejador_oleadas)
-                    return
+                    # detener manejador y reiniciar
+                    manejador_oleadas.detener()
+                    return "reiniciar", vidas.vidas, puntaje, manejador_oleadas.oleada_actual
+
         vidas.mostrar()
         for explosion_obj in explosiones[:]:
             explosion_obj.update(screen, dt)
@@ -331,19 +336,16 @@ def jugar(vidas_restantes=3, puntaje=None, manejador_oleadas=None):
             tiempo_transcurrido = tiempo_actual - nave.powerup_inicio
             tiempo_restante = max(0, nave.powerup_tiempo - tiempo_transcurrido)
 
-            # Tamaño de la barra (proporcional al tiempo restante)
             barra_ancho_total = 200
             barra_alto = 15
             barra_x = 10
-            barra_y = 455  # Parte inferior izquierda
+            barra_y = 455
 
             proporcion = tiempo_restante / nave.powerup_tiempo
             ancho_actual = int(barra_ancho_total * proporcion)
 
-            # Fondo gris
             pygame.draw.rect(screen, (100, 100, 100), (barra_x, barra_y, barra_ancho_total, barra_alto))
-            # Barra roja o azul (según tipo, opcional)
-            color = (0, 255, 0)  # Verde, por defecto
+            color = (0, 255, 0)
             if nave.modo_disparo == "disparo_triple":
                 color = (225, 135, 52)
             elif nave.modo_disparo == "auto_disparo":
@@ -353,4 +355,17 @@ def jugar(vidas_restantes=3, puntaje=None, manejador_oleadas=None):
 
             pygame.draw.rect(screen, color, (barra_x, barra_y, ancho_actual, barra_alto))
         pygame.display.flip()
-jugar()
+
+def main():
+    vidas = 3
+    puntaje = None
+    oleada_actual = 1
+    resultado = "reiniciar"
+
+    while resultado == "reiniciar":
+        resultado, vidas, puntaje, oleada_actual = jugar(vidas, puntaje, None, oleada_actual)
+        if resultado == "game_over":
+            break
+
+if __name__ == "__main__":
+    main()
