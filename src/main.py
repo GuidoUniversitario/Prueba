@@ -14,6 +14,34 @@ from oleadas import ManejadorOleadas
 from puntaje import Puntaje
 from powerup import PowerUp
 
+def pantalla_titulo():
+    pygame.init()
+    screen = pygame.display.set_mode((640, 480))
+    pygame.display.set_caption("Mi primer juego")
+
+    font_titulo = pygame.font.SysFont(None, 80)
+    font_mensaje = pygame.font.SysFont(None, 40)
+
+    titulo = font_titulo.render("MI PRIMER JUEGO", True, (255, 255, 255))
+    mensaje = font_mensaje.render("Pulsa cualquier tecla para comenzar", True, (200, 200, 200))
+
+    clock = pygame.time.Clock()
+    esperando = True
+
+    while esperando:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            if event.type == pygame.KEYDOWN:
+                esperando = False
+
+        screen.fill((0, 0, 20))
+        screen.blit(titulo, titulo.get_rect(center=(320, 180)))
+        screen.blit(mensaje, mensaje.get_rect(center=(320, 300)))
+        pygame.display.flip()
+        clock.tick(60)
+
 def jugar(vidas_restantes=3):
     pygame.init()
     pygame.mixer.init()
@@ -335,9 +363,8 @@ def jugar(vidas_restantes=3):
 
                     screen.blit(texto, text_rect)
                     pygame.display.flip()
-                    pygame.time.delay(4500)
+                    pygame.time.delay(3000)
                     manejador_oleadas.detener()
-                    pygame.quit()
                     return
                 else:
                     manejador_oleadas.detener()
@@ -380,4 +407,7 @@ def jugar(vidas_restantes=3):
 
             pygame.draw.rect(screen, color, (barra_x, barra_y, ancho_actual, barra_alto))
         pygame.display.flip()
-jugar()
+if __name__ == "__main__":
+    while True:
+        pantalla_titulo()  # Muestra la pantalla de título
+        jugar()            # Inicia el juego
