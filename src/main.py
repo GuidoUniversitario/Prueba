@@ -14,7 +14,6 @@ from oleadas import ManejadorOleadas
 from puntaje import Puntaje
 from powerup import PowerUp
 
-=======
 def pantalla_titulo():
     pygame.init()
     screen = pygame.display.set_mode((640, 480))
@@ -36,6 +35,7 @@ def pantalla_titulo():
                 exit()
             if event.type == pygame.KEYDOWN:
                 esperando = False
+                main()
 
         screen.fill((0, 0, 20))
         screen.blit(titulo, titulo.get_rect(center=(320, 180)))
@@ -371,17 +371,13 @@ def jugar(vidas_restantes=3, puntaje=None, manejador_oleadas=None, oleada_actual
                     pygame.display.flip()
                     pygame.time.delay(3000)
                     manejador_oleadas.detener()
-                    pygame.quit()
+                    pantalla_titulo()
                     # devolver estado de fin de juego
                     return "game_over", vidas.vidas, puntaje, manejador_oleadas.oleada_actual
                 else:
                     # detener manejador y reiniciar
                     manejador_oleadas.detener()
                     return "reiniciar", vidas.vidas, puntaje, manejador_oleadas.oleada_actual
-
-                    return
-                else:
-                    manejador_oleadas.detener()
                     if manejador_oleadas._hilo.is_alive():
                         manejador_oleadas._hilo.join(timeout=1)
                     jugar(vidas.vidas)
@@ -431,7 +427,6 @@ def main():
             break
 
 if __name__ == "__main__":
-    main()
     while True:
         pantalla_titulo()  # Muestra la pantalla de título
         jugar()            # Inicia el juego
