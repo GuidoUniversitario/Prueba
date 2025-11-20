@@ -24,6 +24,9 @@ class Nave_Enemiga:
         self.ultimo_disparo = pygame.time.get_ticks()
         self.intervalo_disparo = 1000
 
+        self.sfx_disparo_enemigo = pygame.mixer.Sound("audio/enemylaser.ogg")
+        self.sfx_disparo_enemigo.set_volume(0.1)
+
     def mover(self, screen, dt):
         self.animation_timer += dt
         if self.animation_timer >= self.animation_speed:
@@ -36,6 +39,7 @@ class Nave_Enemiga:
         tiempo_actual = pygame.time.get_ticks()
         if tiempo_actual - self.ultimo_disparo >= self.intervalo_disparo:
             self.ultimo_disparo = tiempo_actual
+            self.sfx_disparo_enemigo.play()
             return Disparo_Enemigo(self.screen, self.x-50, self.y)
 
         return None

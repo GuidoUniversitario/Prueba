@@ -42,6 +42,8 @@ class Disparo:
             })
 
     def shoot_misil(self, x, y, enemigos):
+        origin_x = x + 45
+        origin_y = y + 15
         """Dispara un misil teledirigido hacia el enemigo más cercano."""
         if enemigos:
             # Buscar enemigo más cercano (por distancia al cuadrado)
@@ -49,10 +51,10 @@ class Disparo:
                 enemigos,
                 key=lambda e: ((e.get_rect().centerx - x) ** 2 + (e.get_rect().centery - y) ** 2)
             )
-            self.misiles.append(Misil(x, y, objetivo))
+            self.misiles.append(Misil(origin_x, origin_y, objetivo))
         else:
             # Si no hay enemigos, dispara un misil sin objetivo
-            self.misiles.append(Misil(x, y, None))
+            self.misiles.append(Misil(origin_x, origin_y, None))
 
     def update(self, dt=0):
         """Actualiza la posición de los disparos y misiles."""
